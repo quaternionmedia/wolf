@@ -1,3 +1,5 @@
 fastapi
 mido
 python-rtmidi
+BeautifulSoup4
+lxml
