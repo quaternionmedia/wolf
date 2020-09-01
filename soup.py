@@ -4,10 +4,9 @@ def parseXml(f):
     with open(f) as fp:
         return BeautifulSoup(fp, 'lxml-xml')
 
-def rackControl(filename):
+def rackControl(filename, control = 0):
     soup = parseXml(filename)
     cc = []
-    control = 0
     for i, plugin in enumerate(soup.findAll('plugin')):
         pluginName = plugin['instance-name']
         params = []
@@ -23,10 +22,18 @@ def rackControl(filename):
             plugin.append(auto)
             control += 1
         cc.append({ pluginName: params })
-    return soup, cc
+    return soup, cc, control
 
 if __name__ == '__main__':
-    from pprint import pprint
-    soup, cc = rackControl('../holophonor/calf-holo.xml')
-    with open('test.xml', 'w') as f:
-        f.write(soup.prettify())
+    from os.path import join
+    from json import dumps
+    racks = ['calf_vocal', 'calf_submix', 'calf_synth', 'calf_postfx', 'calf_jacktrip']
+    control = 0
+    plugins = []
+    for rack in racks:
+        soup, cc, control = rackControl(join('../holophonor', rack), control=control)
+        with open(join('../holophonor', rack + '_auto.xml'), 'w') as f:
+            f.write(soup.prettify())
+        plugins.append({rack: cc})
+    with open('racks.json', 'w') as f:
+        f.write(dumps({'racks': plugins}))
