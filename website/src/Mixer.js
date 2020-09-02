@@ -16,6 +16,7 @@ ws.onmessage = e => {
 export function Channel() {
   const position = { x: 0, y: 0 }
   let value = 0
+  let lastsend = new Date()
   return {
     oncreate: vnode => {
       interact(vnode.dom).draggable({
@@ -34,7 +35,10 @@ export function Channel() {
     event.target.setAttribute('data-value', (p*100).toFixed(2))
     value = parseInt(p*127)
     event.target.setAttribute('value', value)
+    if (new Date() - lastsend > debounce) {
       ws.send(JSON.stringify({control: vnode.attrs.control, value: value}))
+      lastsend = new Date()
+    }
     // m.redraw()
       })
       vnode.dom.style.paddingLeft = (vnode.attrs.value / 1.27) + '%'
