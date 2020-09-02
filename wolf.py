@@ -1,8 +1,9 @@
 from mido import Backend, Message
 from fastapi import FastAPI
+from starlette.staticfiles import StaticFiles
 
 jack = Backend('mido.backends.rtmidi/UNIX_JACK')
-outport = jack.open_output()
+outport = jack.open_output('out', client_name='wolf')
 
 app = FastAPI()
 
