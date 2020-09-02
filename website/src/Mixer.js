@@ -2,6 +2,16 @@ import m from 'mithril'
 import interact from 'interactjs'
 
 var Stream = require("mithril/stream")
+export let ws = new WebSocket(`ws://${window.location.host}/ws`)
+
+const debounce = 50
+
+ws.onopen = e => {
+  console.log('opened ws')
+}
+ws.onmessage = e => {
+  console.log(e.data)
+}
 
 export function Channel() {
   const position = { x: 0, y: 0 }
@@ -24,6 +34,7 @@ export function Channel() {
     event.target.setAttribute('data-value', (p*100).toFixed(2))
     value = parseInt(p*127)
     event.target.setAttribute('value', value)
+      ws.send(JSON.stringify({control: vnode.attrs.control, value: value}))
     // m.redraw()
       })
       vnode.dom.style.paddingLeft = (vnode.attrs.value / 1.27) + '%'
@@ -40,7 +51,7 @@ export function Mixer() {
   let ws
   return {
     oninit: vnode => {
-      ws =
+
       channels = vnode.attrs.channels
     },
     view: vnode => {
