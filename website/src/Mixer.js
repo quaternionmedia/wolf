@@ -23,11 +23,13 @@ export function Channel() {
     event.target.style.paddingLeft = (p * 100) + '%'
     event.target.setAttribute('data-value', (p*100).toFixed(2))
     value = parseInt(p*127)
-    m.redraw()
+    event.target.setAttribute('value', value)
+    // m.redraw()
       })
+      vnode.dom.style.paddingLeft = (vnode.attrs.value / 1.27) + '%'
     },
     view: vnode => {
-      return m('.channel.slider', {value: vnode.attrs.value}, value)
+      return m('.channel.slider', {value: vnode.attrs.value})
     }
   }
 }
