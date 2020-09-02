@@ -11,6 +11,7 @@ launchpad_holophonor = [0,1,2,3,16,17,18,19,32,33,34,35,48,49,50,51,64,65,66,67,
 launchpad_automation = [4,5,6,7,20,21,22,23,36,37,38,39,52,53,54,55]
 launchpad_drums = [68,69,70,71,84,85,86,87,100,101,102,103,116,117,118,119]
 
+active = set()
 
 def make_stream():
     loop = asyncio.get_event_loop()
@@ -31,7 +32,13 @@ async def print_messages():
             if message.note in launchpad_holophonor:
                 holophonor.send(message)
             elif message.note in launchpad_automation:
-                m = Message('control_change', channel=15, control=message.note, value=message.velocity)
+                if message.note in active:
+                  velocity = 0
+                  active.remove(message.note)
+                else:
+                  velocity = 127
+                  active.add(message.note)
+                m = Message('control_change', channel=15, control=message.note, value=velocity)
                 automation.send(m)
             elif message.note in launchpad_drums:
                 drums.send(message)
