@@ -13,6 +13,7 @@
     "parcel": "^2.0.0-beta.1"
   },
   "dependencies": {
+    "interactjs": "^1.9.22",
     "mithril": "^2.0.4"
   }
 }
