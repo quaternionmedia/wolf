@@ -55,18 +55,67 @@ export function Fader() {
   }
 }
 
+export function Selector() {
+  return {
+    view: vnode => {
+      return [
+        m(`label[for=${vnode.attrs.name}Input]`, {}, vnode.attrs.name),
+        m(`select.selector#${vnode.attrs.name}`, {
+          ...vnode.attrs,
+          value: vnode.children[0],
+        }, [
+          vnode.children.map(i => {
+            return m('option' , {}, i)
+          })
+        ])
+      ]
+    }
+  }
+}
 
 export function Mixer() {
+  let options = {}
+  let racks = []
+  let rack
+  let plugins = []
+  let plugin
+  let params = []
+  let param
   let channels = []
   return {
     oninit: vnode => {
       m.request('/channels').then(e => {
         console.log(e)
-        channels = Object.entries(e['calf_vocal']['Vocal Reverb'])
+        options = e
+        racks = Object.keys(options)
       })
     },
     view: vnode => {
       return m('.mixer#mixer', {}, [
+        m(Selector, {
+          name: 'racks',
+          onchange: e => {
+            console.log('selected rack', e)
+            rack = e.target.value
+            plugins = Object.keys(options[rack])
+            plugin = plugins[0]
+            params = Object.keys(options[rack][plugin])
+            param = params[0]
+          },
+        }, racks),
+        m(Selector, {
+        onchange: e => {
+          console.log('selected plugin', e)
+          plugin = e.target.value
+          params = Object.keys(options[rack][plugin])
+          param = params[0]
+        },}, plugins),
+        m(Selector, {}, params),
+        param ? m(Fader, {
+          channel: Math.floor(param.control/256),
+          control: param.control,
+          value: param.value,
+        }) : null,
         channels.map((c, i) => {
           console.log('making channel', c)
           return m('.channel', {}, [
