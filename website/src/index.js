@@ -1,5 +1,5 @@
 import m from 'mithril'
-import { Channel, Mixer } from './Mixer'
+import { Mixer } from './Mixer'
 import './style.css'
 
 console.log('wolf!')
@@ -10,8 +10,8 @@ export function Home() {
       return m('#home', {}, [
         m('', {}, 'wolf!'),
         m(Mixer, {channels: [
-          {name: 'test', value: 127, control: 0},
-          {name: 'reverb', value: 12, control:7}
+          {name: 'aging', channel: 1, control: 52, value: 0, },
+          {name: 'vocal reverb', channel: 0, control:39, value: 111}
         ]}),
       ])
     }

@@ -4,7 +4,7 @@ import interact from 'interactjs'
 var Stream = require("mithril/stream")
 export let ws = new WebSocket(`ws://${window.location.host}/ws`)
 
-const debounce = 50
+const debounce = 30
 
 ws.onopen = e => {
   console.log('opened ws')
@@ -13,7 +13,7 @@ ws.onmessage = e => {
   console.log(e.data)
 }
 
-export function Channel() {
+export function Fader() {
   const position = { x: 0, y: 0 }
   let value = 0
   let lastsend = new Date()
@@ -36,8 +36,14 @@ export function Channel() {
     value = parseInt(p*127)
     event.target.setAttribute('value', value)
     if (new Date() - lastsend > debounce) {
-      ws.send(JSON.stringify({control: vnode.attrs.control, value: value}))
+      ws.send(JSON.stringify({
+        channel: vnode.attrs.channel,
+        control: vnode.attrs.control,
+        value: value
+      }))
       lastsend = new Date()
+    } else {
+      console.log('debouncing')
     }
     // m.redraw()
       })
@@ -61,11 +67,14 @@ export function Mixer() {
     view: vnode => {
       return m('.mixer#mixer', {}, [
         channels.map((c, i) => {
-          return m(Channel, {
+          return m('.flex', {}, [
+            m('', {}, c.name),
+            m(Fader, {
             name: c.name,
+            channel: c.channel,
             control: c.control,
-            value: c.value
-          })
+            value: c.value,
+          })])
         })
       ])
     }

@@ -16,8 +16,10 @@ async def sendCC(channel: int = 0, control: int = 0, value: int = 0):
 async def getInput(websocket: WebSocket):
     await websocket.accept()
     while True:
-        data = await websocket.receive_text()
+        data = await websocket.receive_json()
         await websocket.send_text(f"Message text was: {data}")
+        m = Message('control_change', channel=data['channel'], control=data['control'], value=data['value'])
+        outport.send(m)
 
 app.mount("/", StaticFiles(directory='website/dist', html=True), name="static")
 
