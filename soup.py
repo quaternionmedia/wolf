@@ -20,7 +20,10 @@ def rackControl(filename, control = 0):
             auto['key'] = f'automation_v1_{control}_to_{param["name"]}'
             auto['value'] = '0 1'
             plugin.append(auto)
-            control += 1
+            if control % 128 == 127:
+                control += 129
+            else:
+                control += 1
         cc.append({ pluginName: params })
     return soup, cc, control
 
