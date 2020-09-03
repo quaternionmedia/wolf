@@ -50,7 +50,7 @@ export function Fader() {
       vnode.dom.style.paddingLeft = (vnode.attrs.value / 1.27) + '%'
     },
     view: vnode => {
-      return m('.channel.slider', {value: vnode.attrs.value})
+      return m('.slider', {value: vnode.attrs.value})
     }
   }
 }
@@ -58,22 +58,23 @@ export function Fader() {
 
 export function Mixer() {
   let channels = []
-  let ws
   return {
     oninit: vnode => {
-
-      channels = vnode.attrs.channels
+      m.request('/channels').then(e => {
+        console.log(e)
+        channels = Object.entries(e['calf_vocal']['Vocal Reverb'])
+      })
     },
     view: vnode => {
       return m('.mixer#mixer', {}, [
         channels.map((c, i) => {
-          return m('.flex', {}, [
-            m('', {}, c.name),
+          console.log('making channel', c)
+          return m('.channel', {}, [
+            m('', {}, channels[i][0]),
             m(Fader, {
-            name: c.name,
-            channel: c.channel,
-            control: c.control,
-            value: c.value,
+            channel: Math.floor(c[1].control/256),
+            control: c[1].control,
+            value: c[1].value,
           })])
         })
       ])
