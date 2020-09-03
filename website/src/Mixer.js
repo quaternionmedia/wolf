@@ -36,6 +36,7 @@ export function Fader() {
     value = parseInt(p*127)
     event.target.setAttribute('value', value)
     if (new Date() - lastsend > debounce) {
+      // console.log('sending', vnode.attrs)
       ws.send(JSON.stringify({
         channel: vnode.attrs.channel,
         control: vnode.attrs.control,
@@ -50,7 +51,7 @@ export function Fader() {
       vnode.dom.style.paddingLeft = (vnode.attrs.value / 1.27) + '%'
     },
     view: vnode => {
-      return m('.slider', {value: vnode.attrs.value})
+      return m('.slider', vnode.attrs)
     }
   }
 }
@@ -60,11 +61,9 @@ export function Selector() {
     view: vnode => {
       return [
         m(`label[for=${vnode.attrs.name}Input]`, {}, vnode.attrs.name),
-        m(`select.selector#${vnode.attrs.name}`, {
-          ...vnode.attrs,
-          value: vnode.children[0],
-        }, [
+        m(`select.selector#${vnode.attrs.name}`, vnode.attrs, [
           vnode.children.map(i => {
+            // console.log('mapping option', i, vnode.children)
             return m('option' , {}, i)
           })
         ])
@@ -88,42 +87,59 @@ export function Mixer() {
         console.log(e)
         options = e
         racks = Object.keys(options)
+        rack = racks[0]
+        plugins = Object.keys(options[rack])
+        plugin = plugins[0]
+        params = Object.keys(options[rack][plugin])
+        param = params[0]
+        // m.redraw.sync()
       })
     },
     view: vnode => {
       return m('.mixer#mixer', {}, [
         m(Selector, {
           name: 'racks',
-          onchange: e => {
+          oninput: e => {
             console.log('selected rack', e)
             rack = e.target.value
             plugins = Object.keys(options[rack])
             plugin = plugins[0]
             params = Object.keys(options[rack][plugin])
-            param = params[0]
+            param =params[0]
           },
         }, racks),
         m(Selector, {
-        onchange: e => {
-          console.log('selected plugin', e)
-          plugin = e.target.value
-          params = Object.keys(options[rack][plugin])
-          param = params[0]
-        },}, plugins),
-        m(Selector, {}, params),
-        param ? m(Fader, {
-          channel: Math.floor(param.control/256),
-          control: param.control,
-          value: param.value,
-        }) : null,
+          name: 'plugins',
+          oninput: e => {
+            console.log('selected plugin', e)
+            plugin = e.target.value
+            params = Object.keys(options[rack][plugin])
+            param = params[0]
+          },
+        }, plugins),
+        m(Selector, {
+          name: 'parameter',
+          oninput: e => {
+            param = e.target.value
+            console.log('param change', rack, plugin, param, options[rack][plugin][param])
+          },
+        }, params),
+        m('input[type=submit]', {
+          value: 'add',
+          onclick: e => {
+            let selected = options[rack][plugin][param]
+            console.log('adding selected', selected)
+            channels.push(selected)
+          }
+        }),
         channels.map((c, i) => {
           console.log('making channel', c)
           return m('.channel', {}, [
             m('', {}, channels[i][0]),
             m(Fader, {
-            channel: Math.floor(c[1].control/256),
-            control: c[1].control,
-            value: c[1].value,
+            channel: Math.floor(c.control/256),
+            control: c.control % 128,
+            value: c.value,
           })])
         })
       ])
