@@ -129,17 +129,17 @@ export function Mixer() {
           onclick: e => {
             let selected = options[rack][plugin][param]
             console.log('adding selected', selected)
-            channels.push(selected)
+            channels[`${rack} - ${plugin} - ${param}`] = selected
           }
         }),
-        channels.map((c, i) => {
+        Object.keys(channels).map((c, i) => {
           console.log('making channel', c)
           return m('.channel', {}, [
-            m('', {}, channels[i][0]),
+            m('', {}, c),
             m(Fader, {
-            channel: Math.floor(c.control/256),
-            control: c.control % 128,
-            value: c.value,
+            channel: Math.floor(channels[c].control/256),
+            control: channels[c].control % 128,
+            value: channels[c].value,
           })])
         })
       ])
