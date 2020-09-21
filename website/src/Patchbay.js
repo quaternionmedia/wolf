@@ -5,22 +5,16 @@ import edgehandles from 'cytoscape-edgehandles'
 cytoscape.use( edgehandles )
 
 export function Patchbay() {
-  let cy, eh
+  let cy, eh, elements
   return {
+    oninit: vnode => {
+    },
     oncreate: vnode => {
       cy = cytoscape({
         container: vnode.dom,
-        elements: [ // list of graph elements to start with
-        { // node a
-          data: { id: 'a' }
-        },
-        { // node b
-          data: { id: 'b' }
-        },
-        { // edge ab
-          data: { id: 'ab', source: 'a', target: 'b' }
-        }
-      ],
+        elements: m.request('/connections').then(res => {
+          return res.elements
+        }),
       layout: {
                name: 'grid',
                padding: 0,
@@ -29,7 +23,8 @@ export function Patchbay() {
            {
              selector: 'node[name]',
              style: {
-               'content': 'data(name)'
+               'content': 'data(name)',
+               'color': '#fff',
              }
            },
 
@@ -95,7 +90,11 @@ export function Patchbay() {
            }
          ],
       })
-
+      // m.request('/connections').then(res => {
+      //   console.log(res)
+      //   elements = res.elements
+      //   cy.elements = elements
+      // })
       eh = cy.edgehandles({
         noEdgeEventsInDraw: true,
         snap: true

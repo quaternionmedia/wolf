@@ -4,3 +4,5 @@ mido
 python-rtmidi
 BeautifulSoup4
 lxml
+JACK-Client
+networkx
