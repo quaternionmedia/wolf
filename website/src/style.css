@@ -82,7 +82,10 @@ select {
   background-color: #358bf047;
   color: #fff;
 }
-
+.patchbay {
+  width: 100vw;
+  height: 100vh;
+}
 body {
   margin: 5% 10%;
   background-color: #222;

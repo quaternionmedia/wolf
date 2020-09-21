@@ -13,6 +13,8 @@
     "parcel": "^2.0.0-beta.1"
   },
   "dependencies": {
+    "cytoscape": "^3.16.1",
+    "cytoscape-edgehandles": "^3.6.0",
     "interactjs": "^1.9.22",
     "mithril": "^2.0.4"
   }
