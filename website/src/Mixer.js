@@ -124,7 +124,7 @@ export function Mixer() {
             console.log('param change', rack, plugin, param, options[rack][plugin][param])
           },
         }, params),
-        m('input[type=submit]', {
+        m('input.button[type=submit]', {
           value: 'add',
           onclick: e => {
             let selected = options[rack][plugin][param]
