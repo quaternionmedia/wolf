@@ -1,4 +1,5 @@
 fastapi
+aiofiles
 mido
 python-rtmidi
 BeautifulSoup4
