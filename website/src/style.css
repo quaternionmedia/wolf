@@ -9,7 +9,13 @@
 } */
 
 /* the slider bar */
-
+.mixer {
+  margin: 5% 10%;
+  border: #483ee4aa;
+      border-style: double;
+      border-radius: 1em;
+      padding: 1em;
+}
 .channel {
   background-color: #444;
   text-align: center;
@@ -87,7 +93,6 @@ select {
   height: 100vh;
 }
 body {
-  margin: 5% 10%;
   background-color: #222;
   color: #ddd;
 
