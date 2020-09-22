@@ -135,3 +135,39 @@ export function Patchbay() {
     }
   }
 }
+
+export function Button() {
+  return {
+    view: vnode => {
+      return m('input[type=submit].button', vnode.attrs, vnode.children)
+    }
+  }
+}
+
+export function PatchbayPage() {
+  return {
+    view: vnode => {
+      return m('.patchbay', {}, [
+        m(Selector, {
+          value: 'cose-bilkent',
+          oninput: e => {
+            let layout = cy.layout({
+              name: e.target.value,
+              animate: true,
+            })
+            layout.run()
+
+          }
+        }, ['grid', 'circle', 'concentric', 'random', 'dagre', 'klay', 'cose-bilkent' ]),
+        m(Button, {
+          value: 'no overlap',
+          onclick: e => {
+            console.log('rearranging')
+            console.log(cy.nodes().noOverlap({ padding: 5 }))
+          }
+        }),
+        m(Patchbay)
+      ])
+    }
+  }
+}

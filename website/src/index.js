@@ -1,7 +1,7 @@
 import m from 'mithril'
 import { Links } from './Menu'
 import { Mixer } from './Mixer'
-import { Patchbay } from './Patchbay'
+import { PatchbayPage } from './Patchbay'
 import './style.css'
 
 console.log('wolf!')
@@ -20,5 +20,5 @@ export function Home() {
 m.route(document.body, "/", {
   '/': Home,
   '/mixer': Mixer,
-  '/patchbay': Patchbay,
+  '/patchbay': PatchbayPage,
 })
