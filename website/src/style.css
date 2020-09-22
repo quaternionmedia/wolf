@@ -88,10 +88,13 @@ select {
   background-color: #358bf047;
   color: #fff;
 }
-.patchbay {
+.graph {
   position: absolute;
   width: 100%;
   height: 100%;
+}
+.patchbay {
+
 }
 body {
   background-color: #222;

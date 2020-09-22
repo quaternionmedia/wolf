@@ -1,7 +1,7 @@
 import m from 'mithril'
+import { Selector } from './Mixer'
 import cytoscape from 'cytoscape'
 import edgehandles from 'cytoscape-edgehandles'
-
 cytoscape.use( edgehandles )
 
 export function Patchbay() {
@@ -13,13 +13,27 @@ export function Patchbay() {
       cy = cytoscape({
         container: vnode.dom,
         elements: m.request('/connections').then(res => {
-          return res.elements
-        }),
-      layout: {
+          let elems = res.elements
+            return res.elements
+          }),
+        layout: {
                name: 'grid',
                padding: 0,
              },
-      style: [
+        style: [
+
+          {
+            selector: 'node',
+            style: {
+              'background-color': '#aaa'
+            }
+          },
+          {
+            selector: ':selected',
+            style: {
+              'background-color': '#00f'
+            }
+          },
            {
              selector: 'node[name]',
              style: {
@@ -87,14 +101,28 @@ export function Patchbay() {
              style: {
                'opacity': 0
              }
-           }
+           },
+           {
+             selector: ':parent',
+             style: {
+               'background-color': '#444',
+               opacity: .8,
+             }
+           },
+           {
+             selector: '.midi',
+             style: {
+               'color': 'yellow'
+             }
+           },
+           {
+             selector: '.audio',
+             style: {
+               'color': 'green'
+             }
+           },
          ],
       })
-      // m.request('/connections').then(res => {
-      //   console.log(res)
-      //   elements = res.elements
-      //   cy.elements = elements
-      // })
       eh = cy.edgehandles({
         noEdgeEventsInDraw: true,
         snap: true
@@ -103,7 +131,7 @@ export function Patchbay() {
       // grid.run()
     },
     view: vnode => {
-      return m('.patchbay#patchbay', {}, )
+      return m('.graph', {}, )
     }
   }
 }
