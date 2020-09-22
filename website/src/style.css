@@ -1,14 +1,8 @@
-/* .mixer {
-  height: 100vh;
-} */
-
-/* .channel {
-  width: 1em;
-  height: 50%;
-  color: #483ee4;
-} */
-
-/* the slider bar */
+/*
+#483EE4
+#A634ED
+#348AED
+*/
 .mixer {
   margin: 5% 10%;
   border: #483ee4aa;
@@ -20,7 +14,7 @@
   background-color: #444;
   text-align: center;
   border-radius: 2em;
-  border: #358bf047;
+  border: #348AED47;
   border-width: 2px;
   border-style: solid;
   margin-top: 1em;
@@ -85,7 +79,7 @@ select {
   border-radius: 1.5em;
   padding: 1em;
   margin: 1em;
-  background-color: #358bf047;
+  background-color: #348AED47;
   color: #fff;
 }
 .graph {

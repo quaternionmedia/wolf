@@ -34,13 +34,13 @@ export function Patchbay() {
           {
             selector: 'node',
             style: {
-              'background-color': '#aaa'
+              'background-color': '#483EE4',
             }
           },
           {
             selector: ':selected',
             style: {
-              'background-color': '#00f'
+              'background-color': '#348AED'
             }
           },
            {
@@ -57,7 +57,11 @@ export function Patchbay() {
              selector: 'edge',
              style: {
                'curve-style': 'bezier',
-               'target-arrow-shape': 'triangle'
+               'target-arrow-shape': 'triangle',
+               'line-color': '#A634ED',
+               'target-arrow-color': '#A634ED',
+               width: 7,
+
              }
            },
 
