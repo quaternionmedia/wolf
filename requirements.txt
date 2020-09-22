@@ -1,5 +1,6 @@
 fastapi
 aiofiles
+uvicorn
 mido
 python-rtmidi
 BeautifulSoup4
