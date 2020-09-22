@@ -1,2 +1,0 @@
-#!/bin/bash
-docker run -it -v $(pwd)/website:/app -w /app -p 1234:1234 node:12-alpine yarn parcel watch src/index.html
