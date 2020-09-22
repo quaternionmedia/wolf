@@ -3,9 +3,16 @@ import { Selector } from './Mixer'
 import cytoscape from 'cytoscape'
 import edgehandles from 'cytoscape-edgehandles'
 cytoscape.use( edgehandles )
+import dagre from 'cytoscape-dagre'
+cytoscape.use( dagre )
+import klay from 'cytoscape-klay'
+cytoscape.use( klay )
+import coseBilkent from 'cytoscape-cose-bilkent'
+cytoscape.use( coseBilkent )
+
+let cy, eh, elements
 
 export function Patchbay() {
-  let cy, eh, elements
   return {
     oninit: vnode => {
     },
@@ -17,8 +24,10 @@ export function Patchbay() {
             return res.elements
           }),
         layout: {
-               name: 'grid',
-               padding: 0,
+               name: 'cose-bilkent',
+               padding: 5,
+               animate: true,
+               nodeDimensionsIncludeLabels: true,
              },
         style: [
 
@@ -39,6 +48,8 @@ export function Patchbay() {
              style: {
                'content': 'data(name)',
                'color': '#fff',
+               'text-wrap': 'wrap',
+               'text-max-width': '10',
              }
            },
 
@@ -149,23 +160,16 @@ export function PatchbayPage() {
     view: vnode => {
       return m('.patchbay', {}, [
         m(Selector, {
-          value: 'cose-bilkent',
           oninput: e => {
             let layout = cy.layout({
               name: e.target.value,
+              padding: 5,
               animate: true,
+              nodeDimensionsIncludeLabels: true,
             })
             layout.run()
-
           }
         }, ['grid', 'circle', 'concentric', 'random', 'dagre', 'klay', 'cose-bilkent' ]),
-        m(Button, {
-          value: 'no overlap',
-          onclick: e => {
-            console.log('rearranging')
-            console.log(cy.nodes().noOverlap({ padding: 5 }))
-          }
-        }),
         m(Patchbay)
       ])
     }
