@@ -7,9 +7,14 @@ from cyto import cytoscape_data
 from json import loads
 from jack import Client
 
+backend = Backend('mido.backends.rtmidi/UNIX_JACK')
+outport = backend.open_output('out', client_name='wolf')
+
 client = Client('wolf_connections')
-jack = Backend('mido.backends.rtmidi/UNIX_JACK')
-outport = jack.open_output('out', client_name='wolf')
+
+@client.set_port_connect_callback
+def port_connect(a, b, connect):
+    print(['disconnected', 'connected'][connect], a, 'and', b)
 
 app = FastAPI()
 
@@ -33,7 +38,7 @@ async def getChannels():
 async def getConnections():
     graph = Graph()
     ports = [ p.name for p in client.get_ports() ]
-    print(ports)
+    # print(ports)
     clients = set()
     graph.add_nodes_from(ports)
     set_node_attributes(graph, { p:{'parent': p.split(':')[0]} for p in ports})
@@ -43,11 +48,18 @@ async def getConnections():
         clients.add(clientName)
         c = [ (p, c.name) for c in client.get_all_connections(p) ]
         if c:
-            print(f'connection from {p} to {c}')
+            # print(f'connection from {p} to {c}')
             graph.add_edges_from(c)
     graph.add_nodes_from(clients)
-    print('graph', graph.nodes, graph.edges)
+    # print('graph', graph.nodes, graph.edges)
     return cytoscape_data(graph)
+
+@app.get('/connect')
+async def connectPorts(source: str, dest: str):
+    try:
+        client.connect(source, dest)
+    except Exception as e:
+        print('error connecting ports', source, dest, e)
 
 @app.websocket('/ws')
 async def getInput(websocket: WebSocket):
@@ -55,7 +67,7 @@ async def getInput(websocket: WebSocket):
     while True:
         data = await websocket.receive_json()
         await websocket.send_text(f"Message text was: {data}")
-        print(data)
+        # print(data)
         m = Message('control_change', channel=data['channel'], control=data['control'], value=data['value'])
         outport.send(m)
 

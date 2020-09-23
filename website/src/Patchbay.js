@@ -140,7 +140,17 @@ export function Patchbay() {
       })
       eh = cy.edgehandles({
         noEdgeEventsInDraw: true,
-        snap: true
+        snap: true,
+        complete: (source, target, addedElse) => {
+          // console.log(source, target, addedElse)
+          // console.log(source.data('id'))
+          m.request('/connect', {
+            params: {
+              source: source.data('id'),
+              dest: target.data('id')
+            }
+          })
+        },
       })
       // let grid = cy.layout({name: 'grid'})
       // grid.run()
