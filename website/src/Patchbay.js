@@ -63,6 +63,15 @@ export function Patchbay() {
                'text-max-width': '10',
              }
            },
+            {
+              selector: 'edge[id]',
+              style: {
+                'content': 'data(id)',
+                'color': '#fff',
+                'text-wrap': 'wrap',
+                'text-max-width': '10',
+              }
+            },
 
            // some style for the extension
            {
