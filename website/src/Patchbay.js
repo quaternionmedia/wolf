@@ -38,9 +38,20 @@ export function Patchbay() {
             }
           },
           {
+            selector: 'edge',
+            style: {
+              'curve-style': 'bezier',
+              'target-arrow-shape': 'triangle',
+              'line-color': '#7937FA',
+              'target-arrow-color': '#A634ED',
+              width: 7,
+            }
+          },
+          {
             selector: ':selected',
             style: {
-              'background-color': '#348AED'
+              'background-color': '#D312F0',
+              'line-color': '#D312F0',
             }
           },
            {
@@ -50,18 +61,6 @@ export function Patchbay() {
                'color': '#fff',
                'text-wrap': 'wrap',
                'text-max-width': '10',
-             }
-           },
-
-           {
-             selector: 'edge',
-             style: {
-               'curve-style': 'bezier',
-               'target-arrow-shape': 'triangle',
-               'line-color': '#A634ED',
-               'target-arrow-color': '#A634ED',
-               width: 7,
-
              }
            },
 
