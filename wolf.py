@@ -1,5 +1,5 @@
 from mido import Backend, Message
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, HTTPException
 from starlette.staticfiles import StaticFiles
 from networkx import Graph, set_node_attributes
 # from networkx.readwrite.json_graph import cytoscape_data
@@ -60,6 +60,7 @@ async def connectPorts(source: str, dest: str):
         client.connect(source, dest)
     except Exception as e:
         print('error connecting ports', source, dest, e)
+        raise HTTPException(status_code=500, detail='error connecting ports')
 
 @app.websocket('/ws')
 async def getInput(websocket: WebSocket):
