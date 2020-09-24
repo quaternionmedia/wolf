@@ -141,6 +141,10 @@ export function Patchbay() {
       eh = cy.edgehandles({
         noEdgeEventsInDraw: true,
         snap: true,
+        edgeParams: (source, target, i) => {
+          // console.log('edge params', source, target, i)
+          return {data: {id: `${source.data('id')}-${target.data('id')}`}}
+        },
         complete: (source, target, addedElse) => {
           // console.log(source, target, addedElse)
           // console.log(source.data('id'))
@@ -148,6 +152,14 @@ export function Patchbay() {
             params: {
               source: source.data('id'),
               dest: target.data('id')
+            }
+          }).then(res => {
+
+          }).catch(err => {
+            // console.log(err)
+            // console.log(eh)
+            if (source.data('id') && target.data('id')) {
+              cy.remove(`edge[id="${source.data('id')}-${target.data('id')}"]`)
             }
           })
         },
