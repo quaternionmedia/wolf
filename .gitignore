@@ -1,0 +1,5 @@
+*.log
+*.json
+*.xml
+*.lscp
+trello.json
