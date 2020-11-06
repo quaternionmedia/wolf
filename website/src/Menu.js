@@ -17,6 +17,7 @@ export function Links() {
       return [
         m(Link, {href:'/mixer', id: 'mixer'}, 'mixer'),
         m(Link, {href: '/patchbay', id: 'patchbay'}, 'patchbay'),
+        m(Link, {href: '/lyrics', id: 'lyrics'}, 'lyrics'),
       ]
     }
   }

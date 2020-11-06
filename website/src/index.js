@@ -2,6 +2,7 @@ import m from 'mithril'
 import { Links } from './Menu'
 import { Mixer } from './Mixer'
 import { PatchbayPage } from './Patchbay'
+import { Lyrics } from './Lyrics'
 import './style.css'
 
 console.log('wolf!')
@@ -21,4 +22,5 @@ m.route(document.body, "/", {
   '/': Home,
   '/mixer': Mixer,
   '/patchbay': PatchbayPage,
+  '/lyrics': Lyrics,
 })
