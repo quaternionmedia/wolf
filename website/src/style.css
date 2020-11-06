@@ -92,12 +92,12 @@ select {
 }
 .songs {
   display: flex;
+  height: 95vh;
 }
 .setlist {
-  /* flex: 20%; */
   flex-grow: 1;
-  height: 100vh;
-  overflow: scroll;
+  overflow-x: auto;
+  overflow-y: auto;
 }
 .lyrics {
   flex-grow: 2;
