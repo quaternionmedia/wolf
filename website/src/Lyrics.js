@@ -38,7 +38,7 @@ export function Lyrics() {
             return Song(s)
             })
           ]),
-          m('textarea.lyrics', {}, lyrics),
+          m('pre.lyrics', {}, lyrics),
         ])]
     }
   }

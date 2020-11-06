@@ -101,10 +101,11 @@ select {
 }
 .lyrics {
   flex-grow: 2;
+  padding: 1em;
 }
 
 body {
   background-color: #222;
   color: #ddd;
-
+  font-size: 1.5em;
 }
