@@ -20,11 +20,14 @@ app = FastAPI()
 
 @app.get('/cc')
 async def sendCC(channel: int = 0, control: int = 0, value: int = 0):
+    print(f'sending control - channel {channel} - control {control} - value {value}')
     message = Message('control_change', channel=channel, control=control, value=value)
     outport.send(message)
 
 @app.get('/note')
 async def sendCC(channel: int = 0, note: int = 0, velocity: int = 0):
+    print(f'sending note - channel {channel} - note {note} - velocity {velocity}')
+
     message = Message('note_on', channel=channel, note=note, velocity=velocity)
     outport.send(message)
 
@@ -71,6 +74,18 @@ async def getInput(websocket: WebSocket):
         # print(data)
         m = Message('control_change', channel=data['channel'], control=data['control'], value=data['value'])
         outport.send(m)
+
+from trello import TrelloClient
+with open('trello.json') as f:
+    trello_cred = loads(f.read())
+
+trello_client = TrelloClient(api_key=trello_cred['api_key'], api_secret=trello_cred['api_secret'])
+
+@app.get('/setlist')
+async def getSetlist():
+    cards = trello_client.get_list('5f5825c1c8324410fbb531e0').list_cards()
+    setlist = [ card.name for card in cards]
+    return setlist
 
 app.mount("/", StaticFiles(directory='website/dist', html=True), name="static")
 
