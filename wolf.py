@@ -84,8 +84,12 @@ trello_client = TrelloClient(api_key=trello_cred['api_key'], api_secret=trello_c
 @app.get('/setlist')
 async def getSetlist():
     cards = trello_client.get_list('5f5825c1c8324410fbb531e0').list_cards()
-    setlist = [ card.name for card in cards]
+    setlist = [ {'title': card.name, 'id': card.id} for card in cards]
     return setlist
+
+@app.get('/lyrics/{song}')
+async def getLyrics(song: str):
+    return trello_client.get_card(song).description
 
 app.mount("/", StaticFiles(directory='website/dist', html=True), name="static")
 
