@@ -1,4 +1,5 @@
 from pdfrw import PdfReader, PdfWriter
+from string import capwords
 
 def openCsv(path):
     import csv
@@ -22,4 +23,4 @@ def parseReal(book, index, offset=0):
         writer = PdfWriter()
         for p in range(start_page, end_page):
             writer.addpage(book.pages[p])
-        writer.write(f'static/pdf/{song[0].title()}.pdf')
+        writer.write(f'static/pdf/{capwords(song[0])}.pdf')
