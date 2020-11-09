@@ -12,6 +12,6 @@ build js files, with live rebuilding watcher
 
 ## run
 run server
-`uvicorn --reload --host 0.0.0.0 --port 5000 wolf:app`
+`./wolf run`
 
 visit http://localhost:5000
