@@ -103,6 +103,9 @@ select {
   flex-grow: 2;
   padding: 1em;
 }
+.sheet {
+  width: 100%;
+}
 
 body {
   background-color: #222;

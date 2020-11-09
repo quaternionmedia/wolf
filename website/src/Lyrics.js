@@ -5,17 +5,19 @@ export function Lyrics() {
   
   let setlist = []
   let fuse = new Fuse(setlist, {
-    keys: ['title'],
-    threshold: .4,
+    // keys: ['title'],
+    threshold: .35,
   })
   let filter = ''
   let lyrics = ''
+  let pdfLink = ''
   function Song(song) {
     return m('li', {onclick: e => {
-      m.request(`/lyrics/${song.id}`).then(res => {
+      m.request(`/lyrics/${song}`).then(res => {
         lyrics = res
       })
-    }}, song.title)
+      pdfLink = `/static/pdf/${song}.pdf`
+    }}, song)
   }
   return {
     oninit: (vnode) => {
@@ -33,12 +35,16 @@ export function Lyrics() {
         m('.songs', {}, [
           m('ul.setlist', {}, [
             filter ? fuse.search(filter).map(s => {
+              console.log('match', s)
             return Song(s.item)
           }) : setlist.map(s => {
             return Song(s)
             })
           ]),
-          m('pre.lyrics', {}, lyrics),
+          lyrics ? m('pre.lyrics', {}, lyrics) : null,
+          pdfLink ? m('iframe.sheet', {
+            src: pdfLink,
+          }, ) : null,
         ])]
     }
   }
