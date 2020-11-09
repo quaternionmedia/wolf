@@ -6,6 +6,8 @@ from networkx import Graph, set_node_attributes
 from cyto import cytoscape_data
 from json import loads
 from jack import Client
+from glob import glob
+from os.path import basename
 
 backend = Backend('mido.backends.rtmidi/UNIX_JACK')
 outport = backend.open_output('out', client_name='wolf')
@@ -83,15 +85,24 @@ trello_client = TrelloClient(api_key=trello_cred['api_key'], api_secret=trello_c
 
 @app.get('/setlist')
 async def getSetlist():
-    cards = trello_client.get_list('5f5825c1c8324410fbb531e0').list_cards()
-    setlist = [ {'title': card.name, 'id': card.id} for card in cards]
+    # cards = trello_client.get_list('5f5825c1c8324410fbb531e0').list_cards()
+    # setlist = [ {'title': card.name, 'id': card.id} for card in cards]
+    setlist = [basename(i)[:-4] for i in glob('static/pdf/*.pdf')]
+    print(setlist)
     return setlist
 
 @app.get('/lyrics/{song}')
 async def getLyrics(song: str):
-    return trello_client.get_card(song).description
+    try:
+        return trello_client.get_card(song).description
+    except Exception as e:
+        print('error getting lyrics')
+        print(e)
+        raise HTTPException(status_code=404, detail='no lyrics found')
 
-app.mount("/", StaticFiles(directory='website/dist', html=True), name="static")
+
+app.mount("/static", StaticFiles(directory='static', html=True), name="static")
+app.mount("/", StaticFiles(directory='website/dist', html=True), name="dist")
 
 if __name__ == '__main__':
     from uvicorn import run
