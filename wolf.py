@@ -1,5 +1,5 @@
 from mido import Backend, Message
-from fastapi import FastAPI, WebSocket, HTTPException
+from fastapi import FastAPI, WebSocket, HTTPException, Query
 from starlette.staticfiles import StaticFiles
 from networkx import Graph, set_node_attributes
 # from networkx.readwrite.json_graph import cytoscape_data
@@ -8,6 +8,7 @@ from json import loads
 from jack import Client
 from glob import glob
 from os.path import basename
+from typing import List
 
 backend = Backend('mido.backends.rtmidi/UNIX_JACK')
 outport = backend.open_output('out', client_name='wolf')
@@ -33,6 +34,10 @@ async def sendCC(channel: int = 0, note: int = 0, velocity: int = 0):
     message = Message('note_on', channel=channel, note=note, velocity=velocity)
     outport.send(message)
 
+@app.get('/sysex')
+async def sendSysex(data: List[int] = Query([])):
+    message = Message('sysex', data=data)
+    outport.send(message)
 
 @app.get('/channels')
 async def getChannels():
