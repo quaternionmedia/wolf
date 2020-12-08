@@ -28,7 +28,7 @@ async def sendCC(channel: int = 0, control: int = 0, value: int = 0):
     outport.send(message)
 
 @app.get('/note')
-async def sendCC(channel: int = 0, note: int = 0, velocity: int = 0):
+async def sendNote(channel: int = 0, note: int = 0, velocity: int = 0):
     print(f'sending note - channel {channel} - note {note} - velocity {velocity}')
 
     message = Message('note_on', channel=channel, note=note, velocity=velocity)
