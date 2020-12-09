@@ -7,9 +7,10 @@ from rtmidi.midiconstants import NOTE_ON, NOTE_OFF, POLY_AFTERTOUCH, CONTROL_CHA
 EMPTY = 0 # black
 RECORDING = 5 # red
 PLAYING = 21 # green
-STOPPED = 1 # grey
+STOPPED = 43 # navy
 SCENE = 53 #ED63FA
 SCENE_EMPTY = 55 #77567A
+GREEN = [ 123, 23, 64, 22, 76, 87, 21, 122 ]
 
 
 launchpad_loops = {}
@@ -57,7 +58,7 @@ class HoloController:
                         self.loops[l] = 0
                     elif self.loops[l] == 0:
                         # loop paused (or recording) - start playing
-                        launchOut.send_message([NOTE_ON, message[1], PLAYING])
+                        launchOut.send_message([NOTE_ON, message[1], GREEN[message[2] >> 4]])
                         self.loops[l] = message[2]
                     else:
                         # loop playing - stop
