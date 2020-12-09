@@ -52,7 +52,11 @@ class HoloController:
         self.loops = [None]*32
         # self.map = deque([])
         self.scenes = [None]*8
-        pass
+        self.clear()
+    def clear(self):
+        for i in range(11, 89):
+            launchOut.send_message([NOTE_ON, i, 0])
+        self.loops = [None]*32
     def __call__(self, event, data=None):
         message, deltatime = event
         if message[0] == NOTE_ON:
@@ -82,9 +86,7 @@ class HoloController:
             print('control change', message)
             launchOut.send_message(message)
             if message[1] == 89:
-                for i in range(11, 89):
-                    launchOut.send_message([NOTE_ON, i, 0])
-                self.loops = [None]*32
+                self.clear()
 
 launchIn.set_callback(HoloController())
 
