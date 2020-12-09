@@ -12,20 +12,6 @@ SCENE = 53 #ED63FA
 SCENE_EMPTY = 55 #77567A
 
 
-midiin = rtmidi.MidiIn()
-midiout = rtmidi.MidiOut()
-holoOut, p = open_midioutput('FreeWheeling:FreeWheeling IN 1', client_name='holoOut')
-holoIn, p = open_midiinput('FreeWheeling:FreeWheeling OUT 1', client_name='holoIn')
-launchOut, p = open_midioutput('Launchpad X:Launchpad X MIDI 2', client_name='launchOut')
-launchIn, p = open_midiinput('Launchpad X:Launchpad X MIDI 2', client_name='launchIn')
-
-out_ports = midiout.get_ports()
-print('out ports:')
-print(out_ports)
-in_ports = midiin.get_ports()
-print('in ports:')
-print(in_ports)
-
 launchpad_loops = {}
 n = 81
 i = 0
@@ -88,14 +74,33 @@ class HoloController:
             if message[1] == 89:
                 self.clear()
 
-launchIn.set_callback(HoloController())
+if __name__ == '__main__':
+    midiin = rtmidi.MidiIn()
+    midiout = rtmidi.MidiOut()
+    try:
+        holoOut, p = open_midioutput('FreeWheeling:FreeWheeling IN 1', client_name='holoOut')
+        holoIn, p = open_midiinput('FreeWheeling:FreeWheeling OUT 1', client_name='holoIn')
+        launchOut, p = open_midioutput('Launchpad X:Launchpad X MIDI 2', client_name='launchOut')
+        launchIn, p = open_midiinput('Launchpad X:Launchpad X MIDI 2', client_name='launchIn')
+    except Exception as e:
+        print('error opening ports')
+        print(e)
 
-try:
-    while True:
-        sleep(1)
-except KeyboardInterrupt:
-    print('')
-finally:
-    print("hub out!")
-    midiin.close_port()
-    del midiin
+    out_ports = midiout.get_ports()
+    print('out ports:')
+    print(out_ports)
+    in_ports = midiin.get_ports()
+    print('in ports:')
+    print(in_ports)
+
+    launchIn.set_callback(HoloController())
+    # launchIn.set_error_callback(print)
+    try:
+        while True:
+            sleep(1)
+    except KeyboardInterrupt:
+        print('')
+    finally:
+        print("hub out!")
+        midiin.close_port()
+        del midiin
