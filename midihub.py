@@ -14,10 +14,10 @@ SCENE_EMPTY = 55 #77567A
 
 midiin = rtmidi.MidiIn()
 midiout = rtmidi.MidiOut()
-holoOut, p = open_midioutput('FreeWheeling:FreeWheeling IN 1 129:0', client_name='holoOut')
-holoIn, p = open_midiinput('FreeWheeling:FreeWheeling OUT 1 129:1', client_name='holoIn')
-launchOut, p = open_midioutput('Launchpad X:Launchpad X MIDI 2 16:1', client_name='launchOut')
-launchIn, p = open_midiinput('Launchpad X:Launchpad X MIDI 2 16:1', client_name='launchIn')
+holoOut, p = open_midioutput('FreeWheeling:FreeWheeling IN 1', client_name='holoOut')
+holoIn, p = open_midiinput('FreeWheeling:FreeWheeling OUT 1', client_name='holoIn')
+launchOut, p = open_midioutput('Launchpad X:Launchpad X MIDI 2', client_name='launchOut')
+launchIn, p = open_midiinput('Launchpad X:Launchpad X MIDI 2', client_name='launchIn')
 
 out_ports = midiout.get_ports()
 print('out ports:')
