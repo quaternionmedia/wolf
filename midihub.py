@@ -2,6 +2,7 @@ import rtmidi
 from time import time, sleep
 from collections import deque
 from rtmidi.midiutil import open_midioutput, open_midiinput
+from rtmidi.midiconstants import NOTE_ON, NOTE_OFF, POLY_AFTERTOUCH, CONTROL_CHANGE
 
 midiin = rtmidi.MidiIn()
 midiout = rtmidi.MidiOut()
@@ -46,9 +47,9 @@ class HoloController:
         pass
     def __call__(self, event, data=None):
         message, deltatime = event
-        print('note on', message)
-        if message[0] == 144:
+        if message[0] == NOTE_ON:
             if message[1] > 0:
+                print('note on', message)
                 launchOut.send_message(message)
             else:
                 # note off
@@ -57,7 +58,7 @@ launchIn.set_callback(HoloController())
 
 try:
     while True:
-        sleep(.01)
+        sleep(1)
 except KeyboardInterrupt:
     print('')
 finally:
