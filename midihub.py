@@ -81,6 +81,11 @@ class HoloController:
         elif message[0] == CONTROL_CHANGE:
             print('control change', message)
             launchOut.send_message(message)
+            if message[1] == 89:
+                for i in range(11, 89):
+                    launchOut.send_message([NOTE_ON, i, 0])
+                self.loops = [None]*32
+
 launchIn.set_callback(HoloController())
 
 try:
