@@ -23,14 +23,16 @@ for y in range(4):
     n -= 10
 print('loop map:')
 print(launchpad_notes)
+launchpad_scenes = [89, 79, 69, 59, 49, 39, 29, 19]
+launchpad_functions = [91, 92, 93, 94 , 95, 96, 97, 98]
 
 holo_loops = [None]*NUMBER_LOOPS
 # self.map = deque([])
 holo_scenes = [None]*8
 
+
 class HoloController:
     def __init__(self):
-        # self.map = deque([])
         self.live = True
         self.shift = False
         self.toggleLive()
