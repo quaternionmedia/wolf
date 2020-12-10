@@ -36,9 +36,13 @@ class HoloController:
         self.live = True
         self.shift = False
         self.toggleLive()
-        # self.clear()
+        self.clear()
     def clear(self):
         for i in range(11, 89):
+            launchOut.send_message([NOTE_ON, i, 0])
+        for i in launchpad_scenes:
+            launchOut.send_message([NOTE_ON, i, 0])
+        for i in launchpad_functions:
             launchOut.send_message([NOTE_ON, i, 0])
         holo_loops = [None]*NUMBER_LOOPS
         holo_scenes = [None]*8
