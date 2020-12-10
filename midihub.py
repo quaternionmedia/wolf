@@ -3,6 +3,7 @@ from time import time, sleep
 from collections import deque
 from rtmidi.midiutil import open_midioutput, open_midiinput
 from rtmidi.midiconstants import NOTE_ON, NOTE_OFF, POLY_AFTERTOUCH, CONTROL_CHANGE
+from operator import xor
 
 NUMBER_LOOPS = 32
 
@@ -33,6 +34,7 @@ holo_scenes = [None]*8
 
 class HoloController:
     def __init__(self):
+        self.current_scene = None
         self.live = True
         self.shift = False
         self.toggleLive()
@@ -83,15 +85,60 @@ class HoloController:
                 pass
         elif message[0] == CONTROL_CHANGE:
             print('control change', message)
-            if message[1] == 89:
-                # scene 1
-                self.clear()
-                holoOut.send_message()
+            if message[1] in launchpad_scenes and message[2] == 127:
+                # scene button pressed
+                s = launchpad_scenes.index(message[1])
+                if self.shift:
+                    # erase scene
+                    print('erasing scene', s)
+                    holo_scenes[s] = None
+                    launchOut.send_message([NOTE_ON, message[1], EMPTY])
+                else:
+                    # normal mode - no shift
+                    if holo_scenes[s]:
+                        # recall scene
+                        print('recalling scene', s)
+                        if self.current_scene != None:
+                            # deactavate current scene - lights only
+                            launchOut.send_message([NOTE_ON, launchpad_scenes[self.current_scene], STOPPED])
+                        self.current_scene = s
+                        launchOut.send_message([NOTE_ON, launchpad_scenes[self.current_scene], GREEN[-1]])
+                        scene = holo_scenes[s].copy()
+                        print(holo_scenes[s])
+                        for l in range(NUMBER_LOOPS):
+                            if scene[l] != None and scene[l] != holo_loops[l]:
+                                # loop needs to be changed
+                                print(f'changing loop {l} from {holo_loops[l]} to {scene[l]}')
+                                if xor(scene[l] == 0, holo_loops[l] == 0):
+                                    # start/stop loop
+                                    print('start/stop loop', l)
+                                    holoOut.send_message([NOTE_ON, l, scene[l] or 1]) #TODO check to see if this doesn't work
+                                    holo_loops[l] = scene[l]
+                                else:
+                                    # change volume on this loop
+                                    # need to send message twice to fweelin
+                                    print('changing volume of loop')
+                                    holoOut.send_message([NOTE_ON, l, scene[l]])
+                                    holoOut.send_message([NOTE_ON, l, scene[l]])
+                                launchOut.send_message([NOTE_ON, launchpad_notes[l], STOPPED if scene[l] == 0 else GREEN[scene[l] >> 4]])
+                    else:
+                        # store scene
+                        print('storing scene', s)
+                        print(holo_loops)
+                        if self.current_scene != None:
+                            # deactavate current scene - lights only
+                            launchOut.send_message([NOTE_ON, launchpad_scenes[self.current_scene], STOPPED])
+                        self.current_scene = s
+
+                        holo_scenes[s] = holo_loops.copy()
+                        launchOut.send_message([NOTE_ON, message[1], GREEN[-1]])
+                
             elif message[1] == 98:
                 # caputre midi button
+                # enable shift functionality
                 self.shift = False if message[2] == 0 else True
                 holoOut.send_message(message)
-            launchOut.send_message(message)
+            
 
 
 if __name__ == '__main__':
