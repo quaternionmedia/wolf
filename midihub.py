@@ -13,13 +13,11 @@ SCENE_EMPTY = 55 #77567A
 GREEN = [ 123, 23, 64, 22, 76, 87, 21, 122 ]
 
 
-launchpad_notes = {}
+launchpad_notes = []
 n = 81
-i = 0
 for y in range(4):
     for x in range(8):
-        launchpad_notes[n + x] = i
-        i += 1
+        launchpad_notes.append(n + x)
     n -= 10
 print('loop map:')
 print(launchpad_notes)
@@ -49,7 +47,7 @@ class HoloController:
             if message[2] > 0:
                 print('note on', message)
                 if message[1] in launchpad_notes:
-                    l = launchpad_notes[message[1]]
+                    l = launchpad_notes.index(message[1])
                     holoOut.send_message([NOTE_ON, l, message[2]])
                     if not self.shift:
                         if holo_loops[l] == None:
