@@ -13,73 +13,76 @@ SCENE_EMPTY = 55 #77567A
 GREEN = [ 123, 23, 64, 22, 76, 87, 21, 122 ]
 
 
-launchpad_loops = {}
+launchpad_notes = {}
 n = 81
 i = 0
 for y in range(4):
     for x in range(8):
-        launchpad_loops[n + x] = i
+        launchpad_notes[n + x] = i
         i += 1
     n -= 10
 print('loop map:')
-print(launchpad_loops)
+print(launchpad_notes)
 
-class MidiHandler:
-    def __init__(self):
-        # self.port = port
-        self.startTime = time()
-        self.wallclock = self.startTime
-    def __call__(self, event, data=None):
-        message, deltatime = event
-        self.wallclock += deltatime
-        print(self.wallclock, message)
+holo_loops = [None]*32
+# self.map = deque([])
+holo_scenes = [None]*8
 
 class HoloController:
     def __init__(self):
-        self.loops = [None]*32
         # self.map = deque([])
-        self.scenes = [None]*8
-        self.clear()
         self.live = True
+        self.shift = False
         self.toggleLive()
+        # self.clear()
     def clear(self):
         for i in range(11, 89):
             launchOut.send_message([NOTE_ON, i, 0])
-        self.loops = [None]*32
+        holo_loops = [None]*32
     def toggleLive(self):
         # switch to / from programming / Live mode
         launchOut.send_message([240, 0, 32, 41, 2, 12, 14, 1 if self.live else 0, 247])
         self.live = not self.live
     def __call__(self, event, data=None):
         message, deltatime = event
-        if message[0] == NOTE_ON:
-            if message[2] > 0:
-                print('note on', message)
-                if message[1] in launchpad_loops:
-                    l = launchpad_loops[message[1]]
-                    holoOut.send_message([NOTE_ON, l, message[2]])
-                    if self.loops[l] == None:
-                        # no existing loop - start recording
-                        launchOut.send_message([NOTE_ON, message[1], RECORDING])
-                        self.loops[l] = 0
-                    elif self.loops[l] == 0:
-                        # loop paused (or recording) - start playing
-                        launchOut.send_message([NOTE_ON, message[1], GREEN[message[2] >> 4]])
-                        self.loops[l] = message[2]
+        if not self.shift:
+            if message[0] == NOTE_ON:
+                if message[2] > 0:
+                    print('note on', message)
+                    if message[1] in launchpad_notes:
+                        l = launchpad_notes[message[1]]
+                        holoOut.send_message([NOTE_ON, l, message[2]])
+                        if holo_loops[l] == None:
+                            # no existing loop - start recording
+                            launchOut.send_message([NOTE_ON, message[1], RECORDING])
+                            holo_loops[l] = 0
+                        elif holo_loops[l] == 0:
+                            # loop paused (or recording) - start playing
+                            launchOut.send_message([NOTE_ON, message[1], GREEN[message[2] >> 4]])
+                            holo_loops[l] = message[2]
+                        else:
+                            # loop playing - stop
+                            launchOut.send_message([NOTE_ON, message[1], STOPPED])
+                            holo_loops[l] = 0
                     else:
-                        # loop playing - stop
-                        launchOut.send_message([NOTE_ON, message[1], STOPPED])
-                        self.loops[l] = 0
+                        launchOut.send_message(message)
                 else:
-                    launchOut.send_message(message)
-            else:
-                # note off
-                pass
-        elif message[0] == CONTROL_CHANGE:
-            print('control change', message)
-            launchOut.send_message(message)
-            if message[1] == 89:
-                self.clear()
+                    # note off
+                    pass
+            elif message[0] == CONTROL_CHANGE:
+                print('control change', message)
+                launchOut.send_message(message)
+                if message[1] == 89:
+                    self.clear()
+                elif message[1] == 98 and message[2] == 127:
+                    # caputre midi button
+                    self.shift = True
+                elif message[1] == 98 and message[2] == 0:
+                    # released caputre midi button
+                    self.shift = False
+        else:
+            # shift mode
+            pass
 
 if __name__ == '__main__':
     midiin = rtmidi.MidiIn()
