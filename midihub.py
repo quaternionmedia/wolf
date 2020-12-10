@@ -4,6 +4,8 @@ from collections import deque
 from rtmidi.midiutil import open_midioutput, open_midiinput
 from rtmidi.midiconstants import NOTE_ON, NOTE_OFF, POLY_AFTERTOUCH, CONTROL_CHANGE
 
+NUMBER_LOOPS = 32
+
 EMPTY = 0 # black
 RECORDING = 5 # red
 PLAYING = 21 # green
@@ -22,7 +24,7 @@ for y in range(4):
 print('loop map:')
 print(launchpad_notes)
 
-holo_loops = [None]*32
+holo_loops = [None]*NUMBER_LOOPS
 # self.map = deque([])
 holo_scenes = [None]*8
 
@@ -36,7 +38,8 @@ class HoloController:
     def clear(self):
         for i in range(11, 89):
             launchOut.send_message([NOTE_ON, i, 0])
-        holo_loops = [None]*32
+        holo_loops = [None]*NUMBER_LOOPS
+        holo_scenes = [None]*8
     def toggleLive(self):
         # switch to / from programming / Live mode
         launchOut.send_message([240, 0, 32, 41, 2, 12, 14, 1 if self.live else 0, 247])
