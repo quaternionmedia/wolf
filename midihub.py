@@ -45,13 +45,13 @@ class HoloController:
         self.live = not self.live
     def __call__(self, event, data=None):
         message, deltatime = event
-        if not self.shift:
-            if message[0] == NOTE_ON:
-                if message[2] > 0:
-                    print('note on', message)
-                    if message[1] in launchpad_notes:
-                        l = launchpad_notes[message[1]]
-                        holoOut.send_message([NOTE_ON, l, message[2]])
+        if message[0] == NOTE_ON:
+            if message[2] > 0:
+                print('note on', message)
+                if message[1] in launchpad_notes:
+                    l = launchpad_notes[message[1]]
+                    holoOut.send_message([NOTE_ON, l, message[2]])
+                    if not self.shift:
                         if holo_loops[l] == None:
                             # no existing loop - start recording
                             launchOut.send_message([NOTE_ON, message[1], RECORDING])
@@ -65,24 +65,27 @@ class HoloController:
                             launchOut.send_message([NOTE_ON, message[1], STOPPED])
                             holo_loops[l] = 0
                     else:
-                        launchOut.send_message(message)
+                        # shift mode
+                        # erase loop
+                        holo_loops[l] = 0
+                        launchOut.send_message([NOTE_ON, message[1], EMPTY])
                 else:
-                    # note off
-                    pass
-            elif message[0] == CONTROL_CHANGE:
-                print('control change', message)
-                launchOut.send_message(message)
-                if message[1] == 89:
-                    self.clear()
-                elif message[1] == 98 and message[2] == 127:
-                    # caputre midi button
-                    self.shift = True
-                elif message[1] == 98 and message[2] == 0:
-                    # released caputre midi button
-                    self.shift = False
-        else:
-            # shift mode
-            pass
+                    launchOut.send_message(message)
+            else:
+                # note off
+                pass
+        elif message[0] == CONTROL_CHANGE:
+            print('control change', message)
+            if message[1] == 89:
+                # scene 1
+                self.clear()
+                holoOut.send_message()
+            elif message[1] == 98:
+                # caputre midi button
+                self.shift = False if message[2] == 0 else True
+                holoOut.send_message(message)
+            launchOut.send_message(message)
+
 
 if __name__ == '__main__':
     midiin = rtmidi.MidiIn()
