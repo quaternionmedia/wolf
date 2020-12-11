@@ -76,7 +76,7 @@ class HoloController:
                     else:
                         # shift mode
                         # erase loop
-                        holo_loops[l] = 0
+                        holo_loops[l] = None
                         launchOut.send_message([NOTE_ON, message[1], EMPTY])
                 else:
                     launchOut.send_message(message)
