@@ -103,24 +103,37 @@ class HoloController:
                             launchOut.send_message([NOTE_ON, launchpad_scenes[self.current_scene], STOPPED])
                         self.current_scene = s
                         launchOut.send_message([NOTE_ON, launchpad_scenes[self.current_scene], GREEN[-1]])
-                        scene = holo_scenes[s].copy()
+                        scene = holo_scenes[s]
                         print(holo_scenes[s])
                         for l in range(NUMBER_LOOPS):
-                            if scene[l] != None and scene[l] != holo_loops[l]:
-                                # loop needs to be changed
-                                print(f'changing loop {l} from {holo_loops[l]} to {scene[l]}')
-                                if xor(scene[l] == 0, holo_loops[l] == 0):
-                                    # start/stop loop
-                                    print('start/stop loop', l)
-                                    holoOut.send_message([NOTE_ON, l, scene[l] or 1]) #TODO check to see if this doesn't work
-                                    holo_loops[l] = scene[l]
-                                else:
-                                    # change volume on this loop
-                                    # need to send message twice to fweelin
-                                    print('changing volume of loop')
-                                    holoOut.send_message([NOTE_ON, l, scene[l]])
-                                    holoOut.send_message([NOTE_ON, l, scene[l]])
-                                launchOut.send_message([NOTE_ON, launchpad_notes[l], STOPPED if scene[l] == 0 else GREEN[scene[l] >> 4]])
+                            if holo_loops[l] != None:
+                                # loop exists
+                                if scene[l] != holo_loops[l]:
+                                    # loop needs to be changed
+                                    print(f'changing loop {l} from {holo_loops[l]} to {scene[l]}')
+                                    if scene[l] in (0, None):
+                                        if holo_loops[l] > 0:
+                                            # stop loop
+                                            print('stop loop', l)
+                                            holoOut.send_message([NOTE_ON, l, holo_loops[l]]) #TODO check to see if this doesn't work
+                                            holo_loops[l] = 0
+                                    elif scene[l] != None and holo_loops[l] == 0:
+                                        # start loop
+                                        print('start loop', l)
+                                        holoOut.send_message([NOTE_ON, l, scene[l]])
+                                        holo_loops[l] = scene[l]
+                                    else:
+                                        # change volume on this loop
+                                        # need to send message twice to fweelin
+                                        print('changing volume of loop')
+                                        holoOut.send_message([NOTE_ON, l, scene[l] or holo_loops[l]])
+                                        sleep(.01)
+                                        holoOut.send_message([NOTE_ON, l, scene[l] or holo_loops[l]])
+                                        holo_loops[l] = scene[l]
+                                launchOut.send_message([NOTE_ON, launchpad_notes[l], STOPPED if scene[l] in (0, None) else GREEN[scene[l] >> 4]])
+
+                        print('recalled scene')
+                        print(holo_loops)
                     else:
                         # store scene
                         print('storing scene', s)
