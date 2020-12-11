@@ -27,9 +27,8 @@ print(launchpad_notes)
 launchpad_scenes = [89, 79, 69, 59, 49, 39, 29, 19]
 launchpad_functions = [91, 92, 93, 94 , 95, 96, 97, 98]
 launchpad_drums = [11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34, 41, 42, 43, 44]
+launchpad_fx = [15, 16, 17, 18, 25, 26, 27, 28, 35, 36, 37, 38, 45, 46, 47, 48]
 
-holo_loops = [None]*NUMBER_LOOPS
-holo_scenes = [None]*8
 
 class HoloController:
     def __init__(self):
@@ -38,6 +37,8 @@ class HoloController:
         self.shift = False
         self.toggleLive()
         self.clear()
+        self.holo_loops = [None]*NUMBER_LOOPS
+        self.holo_scenes = [None]*8
     def clear(self):
         for i in range(11, 89):
             launchOut.send_message([NOTE_ON, i, 0])
@@ -45,8 +46,8 @@ class HoloController:
             launchOut.send_message([NOTE_ON, i, 0])
         for i in launchpad_functions:
             launchOut.send_message([NOTE_ON, i, 0])
-        holo_loops = [None]*NUMBER_LOOPS
-        holo_scenes = [None]*8
+        self.holo_loops = [None]*NUMBER_LOOPS
+        self.holo_scenes = [None]*8
     def toggleLive(self):
         # switch to / from programming / Live mode
         launchOut.send_message([240, 0, 32, 41, 2, 12, 14, 1 if self.live else 0, 247])
@@ -60,22 +61,22 @@ class HoloController:
                     l = launchpad_notes.index(message[1])
                     holoOut.send_message([NOTE_ON, l, message[2]])
                     if not self.shift:
-                        if holo_loops[l] == None:
+                        if self.holo_loops[l] == None:
                             # no existing loop - start recording
                             launchOut.send_message([NOTE_ON, message[1], RECORDING])
-                            holo_loops[l] = 0
-                        elif holo_loops[l] == 0:
+                            self.holo_loops[l] = 0
+                        elif self.holo_loops[l] == 0:
                             # loop paused (or recording) - start playing
                             launchOut.send_message([NOTE_ON, message[1], GREEN[message[2] >> 4]])
-                            holo_loops[l] = message[2]
+                            self.holo_loops[l] = message[2]
                         else:
                             # loop playing - stop
                             launchOut.send_message([NOTE_ON, message[1], STOPPED])
-                            holo_loops[l] = 0
+                            self.holo_loops[l] = 0
                     else:
                         # shift mode
                         # erase loop
-                        holo_loops[l] = None
+                        self.holo_loops[l] = None
                         launchOut.send_message([NOTE_ON, message[1], EMPTY])
                 elif message[1] in launchpad_drums:
                     bitwigOut.send_message([NOTE_ON, 36 + launchpad_drums.index(message[1]), message[2]])
@@ -97,11 +98,11 @@ class HoloController:
                 if self.shift:
                     # erase scene
                     print('erasing scene', s)
-                    holo_scenes[s] = None
+                    self.holo_scenes[s] = None
                     launchOut.send_message([NOTE_ON, message[1], EMPTY])
                 else:
                     # normal mode - no shift
-                    if holo_scenes[s]:
+                    if self.holo_scenes[s]:
                         # recall scene
                         print('recalling scene', s)
                         if self.current_scene != None:
@@ -109,47 +110,47 @@ class HoloController:
                             launchOut.send_message([NOTE_ON, launchpad_scenes[self.current_scene], STOPPED])
                         self.current_scene = s
                         launchOut.send_message([NOTE_ON, launchpad_scenes[self.current_scene], GREEN[-1]])
-                        scene = holo_scenes[s]
-                        print(holo_scenes[s])
+                        scene = self.holo_scenes[s]
+                        print(self.holo_scenes[s])
                         for l in range(NUMBER_LOOPS):
-                            if holo_loops[l] != None:
+                            if self.holo_loops[l] != None:
                                 # loop exists
-                                if scene[l] != holo_loops[l]:
+                                if scene[l] != self.holo_loops[l]:
                                     # loop needs to be changed
-                                    print(f'changing loop {l} from {holo_loops[l]} to {scene[l]}')
+                                    print(f'changing loop {l} from {self.holo_loops[l]} to {scene[l]}')
                                     if scene[l] in (0, None):
-                                        if holo_loops[l] > 0:
+                                        if self.holo_loops[l] > 0:
                                             # stop loop
                                             print('stop loop', l)
-                                            holoOut.send_message([NOTE_ON, l, holo_loops[l]]) #TODO check to see if this doesn't work
-                                            holo_loops[l] = 0
-                                    elif scene[l] != None and holo_loops[l] == 0:
+                                            holoOut.send_message([NOTE_ON, l, self.holo_loops[l]])
+                                            self.holo_loops[l] = 0
+                                    elif scene[l] != None and self.holo_loops[l] == 0:
                                         # start loop
                                         print('start loop', l)
                                         holoOut.send_message([NOTE_ON, l, scene[l]])
-                                        holo_loops[l] = scene[l]
+                                        self.holo_loops[l] = scene[l]
                                     else:
                                         # change volume on this loop
                                         # need to send message twice to fweelin
                                         print('changing volume of loop')
-                                        holoOut.send_message([NOTE_ON, l, scene[l] or holo_loops[l]])
+                                        holoOut.send_message([NOTE_ON, l, scene[l] or self.holo_loops[l]])
                                         sleep(.01)
-                                        holoOut.send_message([NOTE_ON, l, scene[l] or holo_loops[l]])
-                                        holo_loops[l] = scene[l]
+                                        holoOut.send_message([NOTE_ON, l, scene[l] or self.holo_loops[l]])
+                                        self.holo_loops[l] = scene[l]
                                 launchOut.send_message([NOTE_ON, launchpad_notes[l], STOPPED if scene[l] in (0, None) else GREEN[scene[l] >> 4]])
                                 
                         print('recalled scene')
-                        print(holo_loops)
+                        print(self.holo_loops)
                     else:
                         # store scene
                         print('storing scene', s)
-                        print(holo_loops)
+                        print(self.holo_loops)
                         if self.current_scene != None:
                             # deactavate current scene - lights only
                             launchOut.send_message([NOTE_ON, launchpad_scenes[self.current_scene], STOPPED])
                         self.current_scene = s
 
-                        holo_scenes[s] = holo_loops.copy()
+                        self.holo_scenes[s] = self.holo_loops.copy()
                         launchOut.send_message([NOTE_ON, message[1], GREEN[-1]])
                 
             elif message[1] in launchpad_functions:
