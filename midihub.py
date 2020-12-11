@@ -26,6 +26,7 @@ print('loop map:')
 print(launchpad_notes)
 launchpad_scenes = [89, 79, 69, 59, 49, 39, 29, 19]
 launchpad_functions = [91, 92, 93, 94 , 95, 96, 97, 98]
+launchpad_drums = [11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34, 41, 42, 43, 44]
 
 holo_loops = [None]*NUMBER_LOOPS
 holo_scenes = [None]*8
@@ -76,11 +77,18 @@ class HoloController:
                         # erase loop
                         holo_loops[l] = None
                         launchOut.send_message([NOTE_ON, message[1], EMPTY])
+                elif message[1] in launchpad_drums:
+                    bitwigOut.send_message([NOTE_ON, 36 + launchpad_drums.index(message[1]), message[2]])
+                    launchOut.send_message(message)
+                elif message[1] in launchpad_fx:
+                    pass
                 else:
                     launchOut.send_message(message)
             else:
                 # note off
-                pass
+                if message[1] in launchpad_drums:
+                    bitwigOut.send_message([NOTE_ON, 36 + launchpad_drums.index(message[1]), message[2]])
+                    launchOut.send_message(message)
         elif message[0] == CONTROL_CHANGE:
             print('control change', message)
             if message[1] in launchpad_scenes and message[2] == 127:
@@ -169,16 +177,17 @@ if __name__ == '__main__':
         holoIn, p = open_midiinput('FreeWheeling:FreeWheeling OUT 1', client_name='holoIn')
         launchOut, p = open_midioutput('Launchpad X:Launchpad X MIDI 2', client_name='launchOut')
         launchIn, p = open_midiinput('Launchpad X:Launchpad X MIDI 2', client_name='launchIn')
+        bitwigOut, p = open_midioutput('Virtual Raw MIDI 6-0', client_name='LaunchpadBitwig')
     except Exception as e:
         print('error opening ports')
         print(e)
+        out_ports = midiout.get_ports()
+        print('out ports:')
+        print(out_ports)
+        in_ports = midiin.get_ports()
+        print('in ports:')
+        print(in_ports)
 
-    out_ports = midiout.get_ports()
-    print('out ports:')
-    print(out_ports)
-    in_ports = midiin.get_ports()
-    print('in ports:')
-    print(in_ports)
 
     launchIn.set_callback(HoloController())
     # launchIn.set_error_callback(print)
