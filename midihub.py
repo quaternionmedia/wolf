@@ -28,9 +28,7 @@ launchpad_scenes = [89, 79, 69, 59, 49, 39, 29, 19]
 launchpad_functions = [91, 92, 93, 94 , 95, 96, 97, 98]
 
 holo_loops = [None]*NUMBER_LOOPS
-# self.map = deque([])
 holo_scenes = [None]*8
-
 
 class HoloController:
     def __init__(self):
@@ -131,7 +129,7 @@ class HoloController:
                                         holoOut.send_message([NOTE_ON, l, scene[l] or holo_loops[l]])
                                         holo_loops[l] = scene[l]
                                 launchOut.send_message([NOTE_ON, launchpad_notes[l], STOPPED if scene[l] in (0, None) else GREEN[scene[l] >> 4]])
-
+                                
                         print('recalled scene')
                         print(holo_loops)
                     else:
@@ -146,12 +144,21 @@ class HoloController:
                         holo_scenes[s] = holo_loops.copy()
                         launchOut.send_message([NOTE_ON, message[1], GREEN[-1]])
                 
-            elif message[1] == 98:
-                # caputre midi button
-                # enable shift functionality
-                self.shift = False if message[2] == 0 else True
-                holoOut.send_message(message)
-            
+            elif message[1] in launchpad_functions:
+                if message[1] == 98:
+                    # caputre midi button
+                    # enable shift functionality
+                    self.shift = False if message[2] == 0 else True
+                    holoOut.send_message(message)
+                if self.shift:
+                    if message[1] == 95:
+                        # erase + session = delete-pulse
+                        print('deleting pulse')
+                        holoOut.send_message([CONTROL_CHANGE, 108, 0])
+                        self.clear()
+                else:
+                    # normal mode
+                    pass
 
 
 if __name__ == '__main__':
