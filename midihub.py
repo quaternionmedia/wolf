@@ -79,7 +79,7 @@ class HoloController:
                         self.holo_loops[l] = None
                         launchOut.send_message([NOTE_ON, message[1], EMPTY])
                 elif message[1] in launchpad_drums:
-                    bitwigOut.send_message([NOTE_ON, 36 + launchpad_drums.index(message[1]), message[2]])
+                    fluidOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]), message[2]])
                     launchOut.send_message(message)
                 elif message[1] in launchpad_fx:
                     pass
@@ -88,7 +88,7 @@ class HoloController:
             else:
                 # note off
                 if message[1] in launchpad_drums:
-                    bitwigOut.send_message([NOTE_ON, 36 + launchpad_drums.index(message[1]), message[2]])
+                    fluidOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]), message[2]])
                     launchOut.send_message(message)
         elif message[0] == CONTROL_CHANGE:
             print('control change', message)
@@ -178,7 +178,7 @@ if __name__ == '__main__':
         holoIn, p = open_midiinput('FreeWheeling:FreeWheeling OUT 1', client_name='holoIn')
         launchOut, p = open_midioutput('Launchpad X:Launchpad X MIDI 2', client_name='launchOut')
         launchIn, p = open_midiinput('Launchpad X:Launchpad X MIDI 2', client_name='launchIn')
-        bitwigOut, p = open_midioutput('Virtual Raw MIDI 6-0', client_name='LaunchpadBitwig')
+        fluidOut, p = open_midioutput('FLUID Synth (ElectricMayhem)', client_name='ElectricMayhem', interactive=False)
     except Exception as e:
         print('error opening ports')
         print(e)
