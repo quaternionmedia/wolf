@@ -14,7 +14,7 @@ STOPPED = 43 # navy
 SCENE = 53 #ED63FA
 SCENE_EMPTY = 55 #77567A
 GREEN = [ 123, 23, 64, 22, 76, 87, 21, 122 ]
-
+DRUM_BANKS = [69, 79, 35, 19]
 
 launchpad_notes = []
 n = 81
@@ -38,6 +38,7 @@ class HoloController:
         self.holo_loops = [None]*NUMBER_LOOPS
         self.holo_scenes = [None]*8
         self.mutes = [False]*4
+        self.drum_bank = 0
         self.toggleLive()
         self.clear()
     def clear(self):
@@ -51,6 +52,8 @@ class HoloController:
         self.holo_scenes = [None]*8
         for i in range(len(launchpad_mutes)):
             launchOut.send_message([NOTE_ON, launchpad_mutes[i], EMPTY if self.mutes[i] else RECORDING])
+        for i in launchpad_drums:
+            launchOut.send_message([NOTE_ON, i, DRUM_BANKS[self.drum_bank]])
         launchOut.send_message([CONTROL_CHANGE, 99, 1])
     def toggleLive(self):
         # switch to / from programming / Live mode
@@ -83,7 +86,7 @@ class HoloController:
                         self.holo_loops[l] = None
                         launchOut.send_message([NOTE_ON, message[1], EMPTY])
                 elif message[1] in launchpad_drums:
-                    fluidOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]), message[2]])
+                    fluidOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]) + self.drum_bank*16, message[2]])
                     launchOut.send_message(message)
                 elif message[1] in launchpad_fx:
                     pass
@@ -98,8 +101,8 @@ class HoloController:
             else:
                 # note off
                 if message[1] in launchpad_drums:
-                    fluidOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]), message[2]])
-                    launchOut.send_message(message)
+                    fluidOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]) + self.drum_bank*16, message[2]])
+                    launchOut.send_message([NOTE_ON, message[1], DRUM_BANKS[self.drum_bank]])
         elif message[0] == CONTROL_CHANGE:
             print('control change', message)
             if message[1] in launchpad_scenes and message[2] == 127:
@@ -177,7 +180,17 @@ class HoloController:
                         self.clear()
                 else:
                     # normal mode
-                    pass
+                    if message[1] == 91 and message[2] == 127:
+                        # drum bank increment
+                        self.drum_bank += 1
+                        for i in launchpad_drums:
+                            launchOut.send_message([NOTE_ON, i, DRUM_BANKS[self.drum_bank]])
+                    elif message[1] == 92 and message[2] == 127:
+                        # drum bank decrement
+                        self.drum_bank = max(self.drum_bank - 1, 0)
+                        for i in launchpad_drums:
+                            launchOut.send_message([NOTE_ON, i, DRUM_BANKS[self.drum_bank]])
+
 
 
 if __name__ == '__main__':
