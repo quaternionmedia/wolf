@@ -48,6 +48,7 @@ class HoloController:
             launchOut.send_message([NOTE_ON, i, 0])
         self.holo_loops = [None]*NUMBER_LOOPS
         self.holo_scenes = [None]*8
+        launchOut.send_message([CONTROL_CHANGE, 99, 1])
     def toggleLive(self):
         # switch to / from programming / Live mode
         launchOut.send_message([240, 0, 32, 41, 2, 12, 14, 1 if self.live else 0, 247])
