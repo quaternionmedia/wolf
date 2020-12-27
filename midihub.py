@@ -14,7 +14,7 @@ STOPPED = 43 # navy
 SCENE = 53 #ED63FA
 SCENE_EMPTY = 55 #77567A
 GREEN = [ 123, 23, 64, 22, 76, 87, 21, 122 ]
-DRUM_BANKS = [69, 79, 35, 19]
+DRUM_BANKS = [69, 79, 35, 19, 83]
 
 launchpad_notes = []
 n = 81
@@ -182,12 +182,12 @@ class HoloController:
                     # normal mode
                     if message[1] == 91 and message[2] == 127:
                         # drum bank increment
-                        self.drum_bank += 1
+                        self.drum_bank = min(self.drum_bank + 1, 3)
                         for i in launchpad_drums:
                             launchOut.send_message([NOTE_ON, i, DRUM_BANKS[self.drum_bank]])
                     elif message[1] == 92 and message[2] == 127:
                         # drum bank decrement
-                        self.drum_bank = max(self.drum_bank - 1, 0)
+                        self.drum_bank = max(self.drum_bank - 1, -1)
                         for i in launchpad_drums:
                             launchOut.send_message([NOTE_ON, i, DRUM_BANKS[self.drum_bank]])
 
