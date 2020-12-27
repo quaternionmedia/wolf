@@ -27,18 +27,19 @@ print(launchpad_notes)
 launchpad_scenes = [89, 79, 69, 59, 49, 39, 29, 19]
 launchpad_functions = [91, 92, 93, 94 , 95, 96, 97, 98]
 launchpad_drums = [11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34, 41, 42, 43, 44]
-launchpad_fx = [15, 16, 17, 18, 25, 26, 27, 28, 35, 36, 37, 38, 45, 46, 47, 48]
-
+launchpad_fx = [25, 26, 27, 28, 35, 36, 37, 38, 45, 46, 47, 48]
+launchpad_mutes = [15, 16, 17, 18]
 
 class HoloController:
     def __init__(self):
         self.current_scene = None
         self.live = True
         self.shift = False
-        self.toggleLive()
-        self.clear()
         self.holo_loops = [None]*NUMBER_LOOPS
         self.holo_scenes = [None]*8
+        self.mutes = [False]*4
+        self.toggleLive()
+        self.clear()
     def clear(self):
         for i in range(11, 89):
             launchOut.send_message([NOTE_ON, i, 0])
@@ -48,6 +49,8 @@ class HoloController:
             launchOut.send_message([NOTE_ON, i, 0])
         self.holo_loops = [None]*NUMBER_LOOPS
         self.holo_scenes = [None]*8
+        for i in range(len(launchpad_mutes)):
+            launchOut.send_message([NOTE_ON, launchpad_mutes[i], EMPTY if self.mutes[i] else RECORDING])
         launchOut.send_message([CONTROL_CHANGE, 99, 1])
     def toggleLive(self):
         # switch to / from programming / Live mode
@@ -84,6 +87,12 @@ class HoloController:
                     launchOut.send_message(message)
                 elif message[1] in launchpad_fx:
                     pass
+                elif message[1] in launchpad_mutes:
+                        # mute / unmute inputs 1-4
+                        n = 15 - message[1]
+                        self.mutes[n] = not self.mutes[n]
+                        holoOut.send_message([CONTROL_CHANGE, 41 + message[1], 0 if self.mutes[n] else 127])
+                        launchOut.send_message([NOTE_ON, message[1], EMPTY if self.mutes[n] else RECORDING])
                 else:
                     launchOut.send_message(message)
             else:
@@ -139,7 +148,7 @@ class HoloController:
                                         holoOut.send_message([NOTE_ON, l, scene[l] or self.holo_loops[l]])
                                         self.holo_loops[l] = scene[l]
                                 launchOut.send_message([NOTE_ON, launchpad_notes[l], STOPPED if scene[l] in (0, None) else GREEN[scene[l] >> 4]])
-                                
+
                         print('recalled scene')
                         print(self.holo_loops)
                     else:
@@ -153,7 +162,7 @@ class HoloController:
 
                         self.holo_scenes[s] = self.holo_loops.copy()
                         launchOut.send_message([NOTE_ON, message[1], GREEN[-1]])
-                
+
             elif message[1] in launchpad_functions:
                 if message[1] == 98:
                     # caputre midi button
