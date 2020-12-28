@@ -70,14 +70,17 @@ class HoloController:
                     if not self.shift:
                         if self.holo_loops[l] == None:
                             # no existing loop - start recording
-                            launchOut.send_message([NOTE_ON, message[1], RECORDING])
+                            # red - pulsing
+                            launchOut.send_message([NOTE_ON | 0x2, message[1], RECORDING])
                             self.holo_loops[l] = 0
                         elif self.holo_loops[l] == 0:
                             # loop paused (or recording) - start playing
-                            launchOut.send_message([NOTE_ON, message[1], GREEN[message[2] >> 4]])
+                            # green - pulsing
+                            launchOut.send_message([NOTE_ON | 0x2, message[1], GREEN[message[2] >> 4]])
                             self.holo_loops[l] = message[2]
                         else:
                             # loop playing - stop
+                            # light blue - static
                             launchOut.send_message([NOTE_ON, message[1], STOPPED])
                             self.holo_loops[l] = 0
                     else:
