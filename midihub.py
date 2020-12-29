@@ -153,7 +153,10 @@ class HoloController:
                                         sleep(.01)
                                         holoOut.send_message([NOTE_ON, l, scene[l] or self.holo_loops[l]])
                                         self.holo_loops[l] = scene[l]
-                                launchOut.send_message([NOTE_ON, launchpad_notes[l], STOPPED if scene[l] in (0, None) else GREEN[scene[l] >> 4]])
+                                if scene[l] in (0, None):
+                                    launchOut.send_message([NOTE_ON, launchpad_notes[l], STOPPED]) 
+                                else:
+                                     launchOut.send_message([NOTE_ON | 0x2, launchpad_notes[l], GREEN[scene[l] >> 4]])
 
                         print('recalled scene')
                         print(self.holo_loops)
