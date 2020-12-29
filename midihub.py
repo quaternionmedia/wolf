@@ -125,7 +125,7 @@ class HoloController:
                             # deactavate current scene - lights only
                             launchOut.send_message([NOTE_ON, launchpad_scenes[self.current_scene], STOPPED])
                         self.current_scene = s
-                        launchOut.send_message([NOTE_ON, launchpad_scenes[self.current_scene], GREEN[-1]])
+                        launchOut.send_message([NOTE_ON | 0x2, launchpad_scenes[self.current_scene], GREEN[-1]])
                         scene = self.holo_scenes[s]
                         print(self.holo_scenes[s])
                         for l in range(NUMBER_LOOPS):
