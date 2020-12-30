@@ -45,9 +45,9 @@ class HoloController:
         for i in range(11, 89):
             launchOut.send_message([NOTE_ON, i, 0])
         for i in launchpad_scenes:
-            launchOut.send_message([NOTE_ON, i, 0])
+            launchOut.send_message([CONTROL_CHANGE, i, 0])
         for i in launchpad_functions:
-            launchOut.send_message([NOTE_ON, i, 0])
+            launchOut.send_message([CONTROL_CHANGE, i, 0])
         self.holo_loops = [None]*NUMBER_LOOPS
         self.holo_scenes = [None]*8
         for i in range(len(launchpad_mutes)):
@@ -123,9 +123,9 @@ class HoloController:
                         print('recalling scene', s)
                         if self.current_scene != None:
                             # deactavate current scene - lights only
-                            launchOut.send_message([NOTE_ON, launchpad_scenes[self.current_scene], STOPPED])
+                            launchOut.send_message([CONTROL_CHANGE, launchpad_scenes[self.current_scene], STOPPED])
                         self.current_scene = s
-                        launchOut.send_message([NOTE_ON | 0x2, launchpad_scenes[self.current_scene], GREEN[-1]])
+                        launchOut.send_message([CONTROL_CHANGE | 0x2, launchpad_scenes[self.current_scene], GREEN[-1]])
                         scene = self.holo_scenes[s]
                         print(self.holo_scenes[s])
                         for l in range(NUMBER_LOOPS):
@@ -166,11 +166,11 @@ class HoloController:
                         print(self.holo_loops)
                         if self.current_scene != None:
                             # deactavate current scene - lights only
-                            launchOut.send_message([NOTE_ON, launchpad_scenes[self.current_scene], STOPPED])
+                            launchOut.send_message([CONTROL_CHANGE, launchpad_scenes[self.current_scene], STOPPED])
                         self.current_scene = s
 
                         self.holo_scenes[s] = self.holo_loops.copy()
-                        launchOut.send_message([NOTE_ON, message[1], GREEN[-1]])
+                        launchOut.send_message([CONTROL_CHANGE, message[1], GREEN[-1]])
 
             elif message[1] in launchpad_functions:
                 if message[1] == 98:
