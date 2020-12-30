@@ -200,8 +200,6 @@ class HoloController:
 
 
 if __name__ == '__main__':
-    midiin = rtmidi.MidiIn()
-    midiout = rtmidi.MidiOut()
     try:
         holoOut, p = open_midioutput('FreeWheeling:FreeWheeling IN 1', client_name='holoOut')
         holoIn, p = open_midiinput('FreeWheeling:FreeWheeling OUT 1', client_name='holoIn')
@@ -211,13 +209,6 @@ if __name__ == '__main__':
     except Exception as e:
         print('error opening ports')
         print(e)
-        out_ports = midiout.get_ports()
-        print('out ports:')
-        print(out_ports)
-        in_ports = midiin.get_ports()
-        print('in ports:')
-        print(in_ports)
-
 
     launchIn.set_callback(HoloController())
     # launchIn.set_error_callback(print)
@@ -228,5 +219,3 @@ if __name__ == '__main__':
         print('')
     finally:
         print("hub out!")
-        midiin.close_port()
-        del midiin
