@@ -72,13 +72,21 @@ class HoloController:
                     holoOut.send_message([NOTE_ON, l, message[2]])
                     if not self.shift:
                         if self.cut:
-                            launchOut.send_message([NOTE_ON | 0x2, message[1], GREEN[message[2] >> 4]])
-                            if self.holo_loops[l] == 0:
-                                # FreeWheeling doesn't start loops in cut mode if they are paused or recording. This is a fix for that.
+                            
+                            if self.holo_loops[l] in (0, None):
+                                # FreeWheeling doesn't start loops in cut mode if they are paused, recording, or don't exist. This is a fix for that.
                                 holoOut.send_message([CONTROL_CHANGE, 118, 0])
                                 holoOut.send_message([NOTE_ON, l, message[2]])
                                 holoOut.send_message([CONTROL_CHANGE, 118, 127])
-                            self.holo_loops[l] = message[2]
+                            if self.holo_loops[l] == None:
+                                # in this case, we should be recording
+                                launchOut.send_message([NOTE_ON | 0x2, message[1], RECORDING])
+                                self.holo_loops[l] = 0
+                                
+                            else:
+                                # we should be playing
+                                launchOut.send_message([NOTE_ON | 0x2, message[1], GREEN[message[2] >> 4]])
+                                self.holo_loops[l] = message[2]
                             
                         else:
                             if self.holo_loops[l] == None:
@@ -87,8 +95,10 @@ class HoloController:
                                 launchOut.send_message([NOTE_ON | 0x2, message[1], RECORDING])
                                 self.holo_loops[l] = 0
                             elif self.holo_loops[l] == -1:
-                                # loop overdubbing
-                                pass
+                                # loop currently overdubbing
+                                # play at proper volume
+                                launchOut.send_message([NOTE_ON | 0x2, message[1], GREEN[message[2] >> 4]])
+                                self.holo_loops[l] = message[2]
                             elif self.holo_loops[l] == 0:
                                 # loop paused (or recording)
                                 if self.overdub:
@@ -101,10 +111,15 @@ class HoloController:
                                     launchOut.send_message([NOTE_ON | 0x2, message[1], GREEN[message[2] >> 4]])
                                     self.holo_loops[l] = message[2]
                             else:
-                                # loop playing - stop
-                                # light blue - static
-                                launchOut.send_message([NOTE_ON, message[1], STOPPED])
-                                self.holo_loops[l] = 0
+                                if self.overdub:
+                                    # overdub loop
+                                    launchOut.send_message([NOTE_ON, message[1], RECORDING])
+                                    self.holo_loops[l] = -1
+                                else:
+                                    # loop playing - stop
+                                    # light blue - static
+                                    launchOut.send_message([NOTE_ON, message[1], STOPPED])
+                                    self.holo_loops[l] = 0
                     else:
                         # shift mode
                         # erase loop
@@ -239,7 +254,7 @@ if __name__ == '__main__':
         launchOut, p = open_midioutput('Launchpad X:Launchpad X MIDI 2', client_name='launchOut')
         launchIn, p = open_midiinput('Launchpad X:Launchpad X MIDI 2', client_name='launchIn')
         fluidOut, p = open_midioutput('FLUID Synth (ElectricMayhem)', client_name='ElectricMayhem', interactive=False)
-        panoIn, p = open_midiinput('Virtual Raw MIDI 7-0', client_name='panoIn')
+        panoIn, p = open_midiinput('Virtual Raw MIDI 7-0', client_name='panoIn', interactive=False)
 
     except Exception as e:
         print('error opening ports')
