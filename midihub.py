@@ -39,6 +39,8 @@ class HoloController:
         self.holo_scenes = [None]*8
         self.mutes = [False]*4
         self.drum_bank = 0
+        self.overdub = False
+        self.cut = False
         self.toggleLive()
         self.clear()
     def clear(self):
@@ -69,21 +71,40 @@ class HoloController:
                     l = launchpad_notes.index(message[1])
                     holoOut.send_message([NOTE_ON, l, message[2]])
                     if not self.shift:
-                        if self.holo_loops[l] == None:
-                            # no existing loop - start recording
-                            # red - pulsing
-                            launchOut.send_message([NOTE_ON | 0x2, message[1], RECORDING])
-                            self.holo_loops[l] = 0
-                        elif self.holo_loops[l] == 0:
-                            # loop paused (or recording) - start playing
-                            # green - pulsing
+                        if self.cut:
                             launchOut.send_message([NOTE_ON | 0x2, message[1], GREEN[message[2] >> 4]])
+                            if self.holo_loops[l] == 0:
+                                # FreeWheeling doesn't start loops in cut mode if they are paused or recording. This is a fix for that.
+                                holoOut.send_message([CONTROL_CHANGE, 118, 0])
+                                holoOut.send_message([NOTE_ON, l, message[2]])
+                                holoOut.send_message([CONTROL_CHANGE, 118, 127])
                             self.holo_loops[l] = message[2]
+                            
                         else:
-                            # loop playing - stop
-                            # light blue - static
-                            launchOut.send_message([NOTE_ON, message[1], STOPPED])
-                            self.holo_loops[l] = 0
+                            if self.holo_loops[l] == None:
+                                # no existing loop - start recording
+                                # red - pulsing
+                                launchOut.send_message([NOTE_ON | 0x2, message[1], RECORDING])
+                                self.holo_loops[l] = 0
+                            elif self.holo_loops[l] == -1:
+                                # loop overdubbing
+                                pass
+                            elif self.holo_loops[l] == 0:
+                                # loop paused (or recording)
+                                if self.overdub:
+                                    # start overdubbing
+                                    launchOut.send_message([NOTE_ON | 0x2, message[1], RECORDING])
+                                    self.holo_loops[l] = -1
+                                else:
+                                    # start playing
+                                    # green - pulsing
+                                    launchOut.send_message([NOTE_ON | 0x2, message[1], GREEN[message[2] >> 4]])
+                                    self.holo_loops[l] = message[2]
+                            else:
+                                # loop playing - stop
+                                # light blue - static
+                                launchOut.send_message([NOTE_ON, message[1], STOPPED])
+                                self.holo_loops[l] = 0
                     else:
                         # shift mode
                         # erase loop
@@ -199,6 +220,17 @@ class HoloController:
                             launchOut.send_message([NOTE_ON, i, DRUM_BANKS[self.drum_bank]])
 
 
+        elif message[1] & CONTROL_CHANGE and data == 1:
+            print('pano midi', message)
+            if message[1] == 113:
+                # record button: overdub mode
+                self.overdub = bool(message[2])
+                print('overdub mode', self.overdub)
+            elif message[1] == 118:
+                # mode button: cut mode
+                self.cut = bool(message[2])
+                print('cut mode', self.cut)
+            
 
 if __name__ == '__main__':
     try:
@@ -222,3 +254,4 @@ if __name__ == '__main__':
         print('')
     finally:
         print("hub out!")
+        
