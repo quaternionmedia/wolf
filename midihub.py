@@ -61,6 +61,8 @@ class HoloController:
         # switch to / from programming / Live mode
         launchOut.send_message([240, 0, 32, 41, 2, 12, 14, 1 if self.live else 0, 247])
         self.live = not self.live
+    def exit(self):
+        self.toggleLive()
     def __call__(self, event, data=None):
         message, deltatime = event
         # print(data, message)
@@ -268,5 +270,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print('')
     finally:
+        hc.exit()
         print("hub out!")
         
