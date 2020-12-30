@@ -61,7 +61,8 @@ class HoloController:
         self.live = not self.live
     def __call__(self, event, data=None):
         message, deltatime = event
-        if message[0] == NOTE_ON:
+        # print(data, message)
+        if message[0] == NOTE_ON and data == 0:
             if message[2] > 0:
                 print('note on', message)
                 if message[1] in launchpad_notes:
@@ -106,7 +107,7 @@ class HoloController:
                 if message[1] in launchpad_drums:
                     fluidOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]) + self.drum_bank*16, message[2]])
                     launchOut.send_message([NOTE_ON, message[1], DRUM_BANKS[self.drum_bank]])
-        elif message[0] == CONTROL_CHANGE:
+        elif message[0] == CONTROL_CHANGE and data == 0:
             print('control change', message)
             if message[1] in launchpad_scenes and message[2] == 127:
                 # scene button pressed
@@ -206,12 +207,14 @@ if __name__ == '__main__':
         launchOut, p = open_midioutput('Launchpad X:Launchpad X MIDI 2', client_name='launchOut')
         launchIn, p = open_midiinput('Launchpad X:Launchpad X MIDI 2', client_name='launchIn')
         fluidOut, p = open_midioutput('FLUID Synth (ElectricMayhem)', client_name='ElectricMayhem', interactive=False)
+        panoIn, p = open_midiinput('Virtual Raw MIDI 7-0', client_name='panoIn')
+
     except Exception as e:
         print('error opening ports')
         print(e)
-
-    launchIn.set_callback(HoloController())
-    # launchIn.set_error_callback(print)
+    hc = HoloController()
+    launchIn.set_callback(hc, 0)
+    panoIn.set_callback(hc, 1)
     try:
         while True:
             sleep(1)
