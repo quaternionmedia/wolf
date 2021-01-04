@@ -12,6 +12,8 @@ RECORDING = 5 # red
 PLAYING = 21 # green
 STOPPED = 43 # navy
 CUT = 13 # cut mode - yellow
+PULSE = 55 # dim pink
+TAP = 53 # bright pink
 GREEN = [ 123, 23, 64, 22, 76, 87, 21, 122 ]
 DRUM_BANKS = [69, 79, 35, 19, 83]
 
@@ -40,6 +42,7 @@ class HoloController:
         self.drum_bank = 0
         self.overdub = False
         self.cut = False
+        self.tap = False
         self.toggleLive()
         self.clear()
     def clear(self):
@@ -56,6 +59,8 @@ class HoloController:
         for i in launchpad_drums:
             launchOut.send_message([NOTE_ON, i, DRUM_BANKS[self.drum_bank]])
         launchOut.send_message([CONTROL_CHANGE, 99, 69])
+        self.tap = False
+
     def toggleLive(self):
         # switch to / from programming / Live mode
         launchOut.send_message([240, 0, 32, 41, 2, 12, 14, 1 if self.live else 0, 247])
@@ -158,7 +163,7 @@ class HoloController:
                     fluidOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]) + self.drum_bank*16, message[2]])
                     launchOut.send_message([NOTE_ON, message[1], DRUM_BANKS[self.drum_bank]])
         elif message[0] == CONTROL_CHANGE and data == 0:
-            print('control change', message)
+            # print('control change', message)
             if message[1] in launchpad_scenes and message[2] == 127:
                 # scene button pressed
                 s = launchpad_scenes.index(message[1])
@@ -261,7 +266,8 @@ class HoloController:
                         # tap-pulse
                         if message[2] == 127:
                             holoOut.send_message([CONTROL_CHANGE, 95, 127])
-                        launchOut.send_message([CONTROL_CHANGE, 95, message[2]])
+                            self.tap = not self.tap
+                            launchOut.send_message([CONTROL_CHANGE, 95, TAP if self.tap else PULSE])
                         
         elif message[0] & CONTROL_CHANGE and data == 1:
             print('pano midi', message)
