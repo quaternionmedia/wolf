@@ -47,7 +47,7 @@ class HoloController:
             launchOut.send_message([NOTE_ON, i, 0])
         for i in launchpad_scenes:
             launchOut.send_message([CONTROL_CHANGE, i, 0])
-        for i in launchpad_functions:
+        for i in launchpad_functions[:-3]:
             launchOut.send_message([CONTROL_CHANGE, i, 0])
         self.holo_loops = [None]*NUMBER_LOOPS
         self.holo_scenes = [None]*8
