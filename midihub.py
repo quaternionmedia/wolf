@@ -226,6 +226,7 @@ class HoloController:
                     # enable shift functionality
                     self.shift = False if message[2] == 0 else True
                     holoOut.send_message(message)
+                    launchOut.send_message(message)
                 if self.shift:
                     if message[1] == 95:
                         # erase + session = delete-pulse
