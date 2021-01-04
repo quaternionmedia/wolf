@@ -252,6 +252,12 @@ class HoloController:
                         # note button
                         # toggle overdub on button press
                         self.toggleOverdub()
+                    elif message[1] == 95:
+                        # session button
+                        # tap-pulse
+                        if message[2] == 127:
+                            holoOut.send_message([CONTROL_CHANGE, 95, 127])
+                        launchOut.send_message([CONTROL_CHANGE, 95, message[2]])
                         
         elif message[0] & CONTROL_CHANGE and data == 1:
             print('pano midi', message)
