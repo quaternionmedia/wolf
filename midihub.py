@@ -51,7 +51,7 @@ class HoloController:
             launchOut.send_message([NOTE_ON, i, 0])
         for i in launchpad_scenes:
             launchOut.send_message([CONTROL_CHANGE, i, 0])
-        for i in launchpad_functions:
+        for i in launchpad_functions[:4]:
             launchOut.send_message([CONTROL_CHANGE, i, 0])
         self.holo_loops = [None]*NUMBER_LOOPS
         self.holo_scenes = [None]*8
@@ -246,6 +246,8 @@ class HoloController:
                             print('deleting pulse')
                             holoOut.send_message([CONTROL_CHANGE, 108, 0])
                             self.clear()
+                        launchOut.send_message([CONTROL_CHANGE, 95, ERASE if message[2] else PULSE])
+
                 else:
                     # normal mode
                     if message[1] == 91 and message[2] == 127:
