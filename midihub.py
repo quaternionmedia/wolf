@@ -62,12 +62,12 @@ class HoloController:
         self.live = not self.live
     def toggleOverdub(self):
         self.overdub = not self.overdub
-        holoOut.send_message([CONTROL_CHANGE, 113, 127 if self.overdub else 0])
+        holoOut.send_message([CONTROL_CHANGE, 97, 127 if self.overdub else 0])
         launchOut.send_message([CONTROL_CHANGE, 97, RECORDING if self.overdub else EMPTY])
         # print('overdub mode', self.overdub)
     def toggleCut(self):
         self.cut =  not self.cut
-        holoOut.send_message([CONTROL_CHANGE, 118, 127 if self.overdub else 0])
+        holoOut.send_message([CONTROL_CHANGE, 96, 127 if self.overdub else 0])
         launchOut.send_message([CONTROL_CHANGE, 96, CUT if self.cut else EMPTY])
         # print('overdub mode', self.cut)
     def exit(self):
