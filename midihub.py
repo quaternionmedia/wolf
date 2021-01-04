@@ -242,9 +242,10 @@ class HoloController:
                 if self.shift:
                     if message[1] == 95:
                         # erase + session = delete-pulse
-                        print('deleting pulse')
-                        holoOut.send_message([CONTROL_CHANGE, 108, 0])
-                        self.clear()
+                        if message[2] == 127:
+                            print('deleting pulse')
+                            holoOut.send_message([CONTROL_CHANGE, 108, 0])
+                            self.clear()
                 else:
                     # normal mode
                     if message[1] == 91 and message[2] == 127:
