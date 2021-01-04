@@ -50,7 +50,7 @@ class HoloController:
             launchOut.send_message([NOTE_ON, i, 0])
         for i in launchpad_scenes:
             launchOut.send_message([CONTROL_CHANGE, i, 0])
-        for i in launchpad_functions[:-3]:
+        for i in launchpad_functions:
             launchOut.send_message([CONTROL_CHANGE, i, 0])
         self.holo_loops = [None]*NUMBER_LOOPS
         self.holo_scenes = [None]*8
@@ -59,6 +59,9 @@ class HoloController:
         for i in launchpad_drums:
             launchOut.send_message([NOTE_ON, i, DRUM_BANKS[self.drum_bank]])
         launchOut.send_message([CONTROL_CHANGE, 99, 69])
+        launchOut.send_message([CONTROL_CHANGE, 95, PULSE])
+        launchOut.send_message([CONTROL_CHANGE, 96, CUT if self.cut else EMPTY])
+        launchOut.send_message([CONTROL_CHANGE, 97, RECORD if self.overdub else EMPTY])
         self.tap = False
 
     def toggleLive(self):
