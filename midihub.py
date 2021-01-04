@@ -11,8 +11,7 @@ EMPTY = 0 # black
 RECORDING = 5 # red
 PLAYING = 21 # green
 STOPPED = 43 # navy
-SCENE = 53 #ED63FA
-SCENE_EMPTY = 55 #77567A
+CUT = 13 # cut mode - yellow
 GREEN = [ 123, 23, 64, 22, 76, 87, 21, 122 ]
 DRUM_BANKS = [69, 79, 35, 19, 83]
 
@@ -56,11 +55,21 @@ class HoloController:
             launchOut.send_message([NOTE_ON, launchpad_mutes[i], EMPTY if self.mutes[i] else RECORDING])
         for i in launchpad_drums:
             launchOut.send_message([NOTE_ON, i, DRUM_BANKS[self.drum_bank]])
-        launchOut.send_message([CONTROL_CHANGE, 99, 1])
+        launchOut.send_message([CONTROL_CHANGE, 99, 69])
     def toggleLive(self):
         # switch to / from programming / Live mode
         launchOut.send_message([240, 0, 32, 41, 2, 12, 14, 1 if self.live else 0, 247])
         self.live = not self.live
+    def toggleOverdub(self):
+        self.overdub = not self.overdub
+        holoOut.send_message([CONTROL_CHANGE, 113, 127 if self.overdub else 0])
+        launchOut.send_message([CONTROL_CHANGE, 97, RECORDING if self.overdub else EMPTY])
+        # print('overdub mode', self.overdub)
+    def toggleCut(self):
+        self.cut =  not self.cut
+        holoOut.send_message([CONTROL_CHANGE, 118, 127 if self.overdub else 0])
+        launchOut.send_message([CONTROL_CHANGE, 96, CUT if self.cut else EMPTY])
+        # print('overdub mode', self.cut)
     def exit(self):
         self.toggleLive()
     def __call__(self, event, data=None):
@@ -68,7 +77,7 @@ class HoloController:
         # print(data, message)
         if message[0] == NOTE_ON and data == 0:
             if message[2] > 0:
-                print('note on', message)
+                # print('note on', message)
                 if message[1] in launchpad_notes:
                     l = launchpad_notes.index(message[1])
                     holoOut.send_message([NOTE_ON, l, message[2]])
@@ -235,19 +244,24 @@ class HoloController:
                         self.drum_bank = max(self.drum_bank - 1, -1)
                         for i in launchpad_drums:
                             launchOut.send_message([NOTE_ON, i, DRUM_BANKS[self.drum_bank]])
-
-
+                    elif message[1] == 96:
+                        # note button
+                        # momentary cut mode - normal on release
+                        self.toggleCut()
+                    elif message[1] == 97 and message[2] == 127:
+                        # note button
+                        # toggle overdub on button press
+                        self.toggleOverdub()
+                        
         elif message[1] & CONTROL_CHANGE and data == 1:
             print('pano midi', message)
             if message[1] == 113:
                 # record button: overdub mode
-                self.overdub = bool(message[2])
-                print('overdub mode', self.overdub)
+                self.toggleOverdub()
             elif message[1] == 118:
                 # mode button: cut mode
-                self.cut = bool(message[2])
-                print('cut mode', self.cut)
-            
+                self.toggleCut()
+        
 
 if __name__ == '__main__':
     try:
@@ -256,7 +270,7 @@ if __name__ == '__main__':
         launchOut, p = open_midioutput('Launchpad X:Launchpad X MIDI 2', client_name='launchOut')
         launchIn, p = open_midiinput('Launchpad X:Launchpad X MIDI 2', client_name='launchIn')
         fluidOut, p = open_midioutput('FLUID Synth (ElectricMayhem)', client_name='ElectricMayhem', interactive=False)
-        panoIn, p = open_midiinput('Virtual Raw MIDI 7-0', client_name='panoIn', interactive=False)
+        panoIn, p = open_midiinput('Virtual Raw MIDI 0-0', client_name='panoIn', interactive=False)
 
     except Exception as e:
         print('error opening ports')
