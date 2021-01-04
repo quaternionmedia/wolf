@@ -253,7 +253,7 @@ class HoloController:
                         # toggle overdub on button press
                         self.toggleOverdub()
                         
-        elif message[1] & CONTROL_CHANGE and data == 1:
+        elif message[0] & CONTROL_CHANGE and data == 1:
             print('pano midi', message)
             if message[1] == 113:
                 # record button: overdub mode
@@ -261,7 +261,7 @@ class HoloController:
             elif message[1] == 118:
                 # mode button: cut mode
                 self.toggleCut()
-        
+
 
 if __name__ == '__main__':
     try:
