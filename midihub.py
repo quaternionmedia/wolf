@@ -12,6 +12,7 @@ RECORDING = 5 # red
 PLAYING = 21 # green
 STOPPED = 43 # navy
 CUT = 13 # cut mode - yellow
+ERASE = 84 # orange
 PULSE = 55 # dim pink
 TAP = 53 # bright pink
 GREEN = [ 123, 23, 64, 22, 76, 87, 21, 122 ]
@@ -237,7 +238,7 @@ class HoloController:
                     # enable shift functionality
                     self.shift = False if message[2] == 0 else True
                     holoOut.send_message(message)
-                    launchOut.send_message(message)
+                    launchOut.send_message([*message[:2], ERASE if message[2] else 0])
                 if self.shift:
                     if message[1] == 95:
                         # erase + session = delete-pulse
