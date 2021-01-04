@@ -82,24 +82,26 @@ class HoloController:
                     l = launchpad_notes.index(message[1])
                     holoOut.send_message([NOTE_ON, l, message[2]])
                     if not self.shift:
+                        # normal (unshifted) mode
                         if self.cut:
-                            
+                            # cut mode
                             if self.holo_loops[l] in (0, None):
                                 # FreeWheeling doesn't start loops in cut mode if they are paused, recording, or don't exist. This is a fix for that.
                                 holoOut.send_message([CONTROL_CHANGE, 118, 0])
                                 holoOut.send_message([NOTE_ON, l, message[2]])
                                 holoOut.send_message([CONTROL_CHANGE, 118, 127])
                             if self.holo_loops[l] == None:
-                                # in this case, we should be recording
+                                # no existing loop. we are recording
                                 launchOut.send_message([NOTE_ON | 0x2, message[1], RECORDING])
                                 self.holo_loops[l] = 0
                                 
                             else:
-                                # we should be playing
+                                # loop was paused. should be playing now
                                 launchOut.send_message([NOTE_ON | 0x2, message[1], GREEN[message[2] >> 4]])
                                 self.holo_loops[l] = message[2]
                             
                         else:
+                            # normal (non-cut) mode
                             if self.holo_loops[l] == None:
                                 # no existing loop - start recording
                                 # red - pulsing
@@ -122,12 +124,13 @@ class HoloController:
                                     launchOut.send_message([NOTE_ON | 0x2, message[1], GREEN[message[2] >> 4]])
                                     self.holo_loops[l] = message[2]
                             else:
+                                # loop is playing
                                 if self.overdub:
                                     # overdub loop
                                     launchOut.send_message([NOTE_ON, message[1], RECORDING])
                                     self.holo_loops[l] = -1
                                 else:
-                                    # loop playing - stop
+                                    # stop loop
                                     # light blue - static
                                     launchOut.send_message([NOTE_ON, message[1], STOPPED])
                                     self.holo_loops[l] = 0
