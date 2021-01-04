@@ -255,7 +255,7 @@ class HoloController:
                         
         elif message[0] & CONTROL_CHANGE and data == 1:
             print('pano midi', message)
-            if message[1] == 113:
+            if message[1] == 113 and self.overdub != bool(message[2]) :
                 # record button: overdub mode
                 self.toggleOverdub()
             elif message[1] == 118:
