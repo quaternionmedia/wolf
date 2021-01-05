@@ -157,7 +157,7 @@ class HoloController:
                         # shift mode
                         # erase loop
                         self.holo_loops[l] = None
-                        launchOut.send_message([NOTE_ON, message[1], EMPTY])
+                        launchOut.send_message([NOTE_ON, message[1], ERASE])
                 elif message[1] in launchpad_drums:
                     fluidOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]) + self.drum_bank*16, message[2]])
                     launchOut.send_message(message)
@@ -176,6 +176,11 @@ class HoloController:
                 if message[1] in launchpad_drums:
                     fluidOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]) + self.drum_bank*16, message[2]])
                     launchOut.send_message([NOTE_ON, message[1], DRUM_BANKS[self.drum_bank]])
+                elif message[1] in launchpad_notes:
+                    l = launchpad_notes.index(message[1])
+                    if self.holo_loops[l] is None:
+                        # if we deleted the loop clear the color
+                        launchOut.send_message([NOTE_ON, message[1], 0])
         elif message[0] == CONTROL_CHANGE and data == 0:
             # print('control change', message)
             if message[1] in launchpad_scenes and message[2] == 127:
