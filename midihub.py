@@ -303,13 +303,13 @@ if __name__ == '__main__':
         launchIn, p = open_midiinput('Launchpad X:Launchpad X MIDI 2', client_name='launchIn')
         fluidOut, p = open_midioutput('FLUID Synth (ElectricMayhem)', client_name='ElectricMayhem', interactive=False)
         panoIn, p = open_midiinput('Virtual Raw MIDI 0-0', client_name='panoIn', interactive=False)
-
+        hc = HoloController()
+        launchIn.set_callback(hc, 0)
+        panoIn.set_callback(hc, 1)
     except Exception as e:
         print('error opening ports')
         print(e)
-    hc = HoloController()
-    launchIn.set_callback(hc, 0)
-    panoIn.set_callback(hc, 1)
+        
     try:
         while True:
             sleep(1)
