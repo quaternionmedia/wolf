@@ -274,8 +274,8 @@ class HoloController:
                         if message[2] == 127:
                             holoOut.send_message([CONTROL_CHANGE, 95, 127])
                             self.tap = not self.tap
-                            launchOut.send_message([CONTROL_CHANGE, 95, TAP if self.tap else PULSE])
-                        
+                        # this also clears the ERASE color from the Session button if shift mode is released first
+                        launchOut.send_message([CONTROL_CHANGE, 95, TAP if self.tap else PULSE])
         elif message[0] & CONTROL_CHANGE and data == 1:
             print('pano midi', message)
             if message[1] == 113 and self.overdub != bool(message[2]) :
