@@ -290,6 +290,9 @@ class HoloController:
             elif message[1] == 118:
                 # mode button: cut mode
                 self.toggleCut()
+            elif message[1] == 3:
+                # master volume
+                holoOut.send_message(message)
 
 
 if __name__ == '__main__':
