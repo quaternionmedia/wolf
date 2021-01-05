@@ -183,70 +183,74 @@ class HoloController:
                         launchOut.send_message([NOTE_ON, message[1], 0])
         elif message[0] == CONTROL_CHANGE and data == 0:
             # print('control change', message)
-            if message[1] in launchpad_scenes and message[2] == 127:
-                # scene button pressed
+            if message[1] in launchpad_scenes:
                 s = launchpad_scenes.index(message[1])
-                if self.shift:
-                    # erase scene
-                    print('erasing scene', s)
-                    self.holo_scenes[s] = None
-                    launchOut.send_message([NOTE_ON, message[1], EMPTY])
-                else:
-                    # normal mode - no shift
-                    if self.holo_scenes[s]:
-                        # recall scene
-                        print('recalling scene', s)
-                        if self.current_scene != None:
-                            # deactavate current scene - lights only
-                            launchOut.send_message([CONTROL_CHANGE, launchpad_scenes[self.current_scene], STOPPED])
-                        self.current_scene = s
-                        launchOut.send_message([CONTROL_CHANGE | 0x2, launchpad_scenes[self.current_scene], GREEN[-1]])
-                        scene = self.holo_scenes[s]
-                        print(self.holo_scenes[s])
-                        for l in range(NUMBER_LOOPS):
-                            if self.holo_loops[l] != None:
-                                # loop exists
-                                if scene[l] != self.holo_loops[l]:
-                                    # loop needs to be changed
-                                    print(f'changing loop {l} from {self.holo_loops[l]} to {scene[l]}')
-                                    if scene[l] in (0, None):
-                                        if self.holo_loops[l] > 0:
-                                            # stop loop
-                                            print('stop loop', l)
-                                            holoOut.send_message([NOTE_ON, l, self.holo_loops[l]])
-                                            self.holo_loops[l] = 0
-                                    elif scene[l] != None and self.holo_loops[l] == 0:
-                                        # start loop
-                                        print('start loop', l)
-                                        holoOut.send_message([NOTE_ON, l, scene[l]])
-                                        self.holo_loops[l] = scene[l]
-                                    else:
-                                        # change volume on this loop
-                                        # need to send message twice to fweelin
-                                        print('changing volume of loop')
-                                        holoOut.send_message([NOTE_ON, l, scene[l] or self.holo_loops[l]])
-                                        sleep(.01)
-                                        holoOut.send_message([NOTE_ON, l, scene[l] or self.holo_loops[l]])
-                                        self.holo_loops[l] = scene[l]
-                                if scene[l] in (0, None):
-                                    launchOut.send_message([NOTE_ON, launchpad_notes[l], STOPPED]) 
-                                else:
-                                     launchOut.send_message([NOTE_ON | 0x2, launchpad_notes[l], GREEN[scene[l] >> 4]])
-
-                        print('recalled scene')
-                        print(self.holo_loops)
+                if message[2] == 127:
+                    # scene button pressed
+                    if self.shift:
+                        # erase scene
+                        print('erasing scene', s)
+                        self.holo_scenes[s] = None
+                        launchOut.send_message([NOTE_ON, message[1], ERASE])
                     else:
-                        # store scene
-                        print('storing scene', s)
-                        print(self.holo_loops)
-                        if self.current_scene != None:
-                            # deactavate current scene - lights only
-                            launchOut.send_message([CONTROL_CHANGE, launchpad_scenes[self.current_scene], STOPPED])
-                        self.current_scene = s
+                        # normal mode - no shift
+                        if self.holo_scenes[s]:
+                            # recall scene
+                            print('recalling scene', s)
+                            if self.current_scene != None:
+                                # deactavate current scene - lights only
+                                launchOut.send_message([CONTROL_CHANGE, launchpad_scenes[self.current_scene], STOPPED])
+                            self.current_scene = s
+                            launchOut.send_message([CONTROL_CHANGE | 0x2, launchpad_scenes[self.current_scene], GREEN[-1]])
+                            scene = self.holo_scenes[s]
+                            print(self.holo_scenes[s])
+                            for l in range(NUMBER_LOOPS):
+                                if self.holo_loops[l] != None:
+                                    # loop exists
+                                    if scene[l] != self.holo_loops[l]:
+                                        # loop needs to be changed
+                                        print(f'changing loop {l} from {self.holo_loops[l]} to {scene[l]}')
+                                        if scene[l] in (0, None):
+                                            if self.holo_loops[l] > 0:
+                                                # stop loop
+                                                print('stop loop', l)
+                                                holoOut.send_message([NOTE_ON, l, self.holo_loops[l]])
+                                                self.holo_loops[l] = 0
+                                        elif scene[l] != None and self.holo_loops[l] == 0:
+                                            # start loop
+                                            print('start loop', l)
+                                            holoOut.send_message([NOTE_ON, l, scene[l]])
+                                            self.holo_loops[l] = scene[l]
+                                        else:
+                                            # change volume on this loop
+                                            # need to send message twice to fweelin
+                                            print('changing volume of loop')
+                                            holoOut.send_message([NOTE_ON, l, scene[l] or self.holo_loops[l]])
+                                            sleep(.01)
+                                            holoOut.send_message([NOTE_ON, l, scene[l] or self.holo_loops[l]])
+                                            self.holo_loops[l] = scene[l]
+                                    if scene[l] in (0, None):
+                                        launchOut.send_message([NOTE_ON, launchpad_notes[l], STOPPED]) 
+                                    else:
+                                         launchOut.send_message([NOTE_ON | 0x2, launchpad_notes[l], GREEN[scene[l] >> 4]])
 
-                        self.holo_scenes[s] = self.holo_loops.copy()
-                        launchOut.send_message([CONTROL_CHANGE, message[1], GREEN[-1]])
+                            print('recalled scene')
+                            print(self.holo_loops)
+                        else:
+                            # store scene
+                            print('storing scene', s)
+                            print(self.holo_loops)
+                            if self.current_scene != None:
+                                # deactavate current scene - lights only
+                                launchOut.send_message([CONTROL_CHANGE, launchpad_scenes[self.current_scene], STOPPED])
+                            self.current_scene = s
 
+                            self.holo_scenes[s] = self.holo_loops.copy()
+                            launchOut.send_message([CONTROL_CHANGE, message[1], GREEN[-1]])
+                else:
+                    # scene button released
+                    if self.holo_scenes[s] is None:
+                        launchOut.send_message([NOTE_ON, message[1], 0])
             elif message[1] in launchpad_functions:
                 if message[1] == 98:
                     # caputre midi button
