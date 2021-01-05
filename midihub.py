@@ -16,7 +16,7 @@ ERASE = 84 # orange
 PULSE = 55 # dim pink
 TAP = 53 # bright pink
 GREEN = [ 123, 23, 64, 22, 76, 87, 21, 122 ]
-DRUM_BANKS = [69, 79, 35, 19, 83]
+DRUM_BANKS = [69, 79, 35, 15, 59]
 
 launchpad_notes = []
 n = 81
@@ -59,6 +59,8 @@ class HoloController:
             launchOut.send_message([NOTE_ON, launchpad_mutes[i], EMPTY if self.mutes[i] else RECORDING])
         for i in launchpad_drums:
             launchOut.send_message([NOTE_ON, i, DRUM_BANKS[self.drum_bank]])
+        launchOut.send_message([CONTROL_CHANGE, 91, DRUM_BANKS[min(self.drum_bank + 1, 3)]])
+        launchOut.send_message([CONTROL_CHANGE, 92, DRUM_BANKS[max(self.drum_bank - 1, -1)]])
         launchOut.send_message([CONTROL_CHANGE, 99, 69])
         launchOut.send_message([CONTROL_CHANGE, 95, PULSE])
         launchOut.send_message([CONTROL_CHANGE, 96, CUT if self.cut else EMPTY])
@@ -78,7 +80,15 @@ class HoloController:
         self.cut =  not self.cut
         holoOut.send_message([CONTROL_CHANGE, 96, 127 if self.overdub else 0])
         launchOut.send_message([CONTROL_CHANGE, 96, CUT if self.cut else EMPTY])
-        # print('overdub mode', self.cut)
+        # print('cut mode', self.cut)
+    def changeDrumBank(self, bank):
+        self.drum_bank = bank
+        print('chaning drum bank', self.drum_bank)
+        if bank >= -1 and bank <= 3:
+            launchOut.send_message([CONTROL_CHANGE, 91, DRUM_BANKS[min(bank + 1, 3)]])
+            launchOut.send_message([CONTROL_CHANGE, 92, DRUM_BANKS[max(bank - 1, -1)]])
+            for i in launchpad_drums:
+                launchOut.send_message([NOTE_ON, i, DRUM_BANKS[bank]])
     def exit(self):
         self.toggleLive()
     def __call__(self, event, data=None):
@@ -252,14 +262,10 @@ class HoloController:
                     # normal mode
                     if message[1] == 91 and message[2] == 127:
                         # drum bank increment
-                        self.drum_bank = min(self.drum_bank + 1, 3)
-                        for i in launchpad_drums:
-                            launchOut.send_message([NOTE_ON, i, DRUM_BANKS[self.drum_bank]])
+                        self.changeDrumBank(min(self.drum_bank + 1, 3))
                     elif message[1] == 92 and message[2] == 127:
                         # drum bank decrement
-                        self.drum_bank = max(self.drum_bank - 1, -1)
-                        for i in launchpad_drums:
-                            launchOut.send_message([NOTE_ON, i, DRUM_BANKS[self.drum_bank]])
+                        self.changeDrumBank(max(self.drum_bank - 1, -1))
                     elif message[1] == 96:
                         # note button
                         # momentary cut mode - normal on release
