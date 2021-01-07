@@ -95,10 +95,10 @@ class HoloController:
         message, deltatime = event
         # print(data, message)
         if message[0] == NOTE_ON and data == 0:
-            if message[2] > 0:
-                # print('note on', message)
-                if message[1] in launchpad_notes:
-                    l = launchpad_notes.index(message[1])
+            if message[1] in launchpad_notes:
+                l = launchpad_notes.index(message[1])
+                if message[2]:
+                    # note on
                     holoOut.send_message([NOTE_ON, l, message[2]])
                     if not self.shift:
                         # normal (unshifted) mode
@@ -158,29 +158,26 @@ class HoloController:
                         # erase loop
                         self.holo_loops[l] = None
                         launchOut.send_message([NOTE_ON, message[1], ERASE])
-                elif message[1] in launchpad_drums:
-                    fluidOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]) + self.drum_bank*16, message[2]])
-                    launchOut.send_message(message)
-                elif message[1] in launchpad_fx:
-                    pass
-                elif message[1] in launchpad_mutes:
-                        # mute / unmute inputs 1-4
-                        n = 15 - message[1]
-                        self.mutes[n] = not self.mutes[n]
-                        holoOut.send_message([CONTROL_CHANGE, 41 + message[1], 0 if self.mutes[n] else 127])
-                        launchOut.send_message([NOTE_ON, message[1], EMPTY if self.mutes[n] else RECORDING])
                 else:
-                    launchOut.send_message(message)
-            else:
-                # note off
-                if message[1] in launchpad_drums:
-                    fluidOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]) + self.drum_bank*16, message[2]])
-                    launchOut.send_message([NOTE_ON, message[1], DRUM_BANKS[self.drum_bank]])
-                elif message[1] in launchpad_notes:
-                    l = launchpad_notes.index(message[1])
+                    # note off
                     if self.holo_loops[l] is None:
                         # if we deleted the loop clear the color
-                        launchOut.send_message([NOTE_ON, message[1], 0])
+                        launchOut.send_message([NOTE_ON, message[1], 0])        
+            elif message[1] in launchpad_drums:
+                fluidOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]) + self.drum_bank*16, message[2]])
+                launchOut.send_message([*message[:2], message[2] if message[2] else DRUM_BANKS[self.drum_bank]])
+            elif message[1] in launchpad_fx:
+                pass
+            elif message[1] in launchpad_mutes and message[2]:
+                    # mute / unmute inputs 1-4
+                    n = 15 - message[1]
+                    self.mutes[n] = not self.mutes[n]
+                    holoOut.send_message([CONTROL_CHANGE, 41 + message[1], 0 if self.mutes[n] else 127])
+                    launchOut.send_message([NOTE_ON, message[1], EMPTY if self.mutes[n] else RECORDING])
+            else:
+                # no matching rule found for message
+                # launchOut.send_message(message)
+                pass
         elif message[0] == CONTROL_CHANGE and data == 0:
             # print('control change', message)
             if message[1] in launchpad_scenes:
