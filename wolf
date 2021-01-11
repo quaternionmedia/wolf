@@ -8,7 +8,7 @@ elif [ $1 = "install" -o $1 = "i" ]; then
   docker run -it -v $(pwd)/website:/app -w /app -p 1234:1234 node:12-alpine yarn add "$@"
 
 elif [ $1 = "build" ]; then
-  docker run -it -v $(pwd)/website:/app -w /app -p 1234:1234 node:12-alpine yarn parcel watch src/index.html
+  docker run -it -v $(pwd)/website:/app -w /app -p 5555:1234 node:current-alpine yarn parcel watch src/index.html
 
 elif [[ $1 = "run" || $1 =~ "serve" ]]; then
   uvicorn --reload --host 0.0.0.0 --port 5000 wolf:app
