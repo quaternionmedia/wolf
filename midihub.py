@@ -17,7 +17,7 @@ PULSE = 55 # dim pink
 TAP = 53 # bright pink
 GREEN = [ 123, 23, 64, 22, 76, 87, 21, 122 ]
 DRUM_BANKS = [69, 79, 35, 15, 59]
-
+FX = [4, 11, 12, 16, 20, 28, 36, 44, 52, 55, 59, 69, ]
 launchpad_notes = []
 n = 81
 for y in range(4):
@@ -40,6 +40,7 @@ class HoloController:
         self.holo_loops = [None]*NUMBER_LOOPS
         self.holo_scenes = [None]*8
         self.mutes = [False]*4
+        self.fx = [False]*12
         self.drum_bank = 0
         self.overdub = False
         self.cut = False
@@ -166,8 +167,11 @@ class HoloController:
             elif message[1] in launchpad_drums:
                 fluidOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]) + self.drum_bank*16, message[2]])
                 launchOut.send_message([*message[:2], message[2] if message[2] else DRUM_BANKS[self.drum_bank]])
-            elif message[1] in launchpad_fx:
-                pass
+            elif message[1] in launchpad_fx and message[2]:
+                f = launchpad_fx.index(message[1])
+                self.fx[f] = not self.fx[f]
+                bitwigOut.send_message([CONTROL_CHANGE, message[1], 127 if self.fx[f] else 0])
+                launchOut.send_message([*message[:2], FX[f] if self.fx[f] else EMPTY])
             elif message[1] in launchpad_mutes and message[2]:
                     # mute / unmute inputs 1-4
                     n = 15 - message[1]
@@ -309,6 +313,7 @@ if __name__ == '__main__':
         launchIn, p = open_midiinput('Launchpad X:Launchpad X MIDI 2', client_name='launchIn')
         fluidOut, p = open_midioutput('FLUID Synth (ElectricMayhem)', client_name='ElectricMayhem', interactive=False)
         panoIn, p = open_midiinput('Virtual Raw MIDI 0-0', client_name='panoIn', interactive=False)
+        bitwigOut, p = open_midioutput('Virtual Raw MIDI 0-0', client_name='bitwigOut', interactive=False)
     except Exception as e:
         print('error opening ports')
         print(e)
