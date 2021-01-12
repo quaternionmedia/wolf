@@ -1,5 +1,6 @@
 fastapi
 aiofiles
+websockets
 uvicorn
 mido
 python-rtmidi
