@@ -5,7 +5,7 @@ if [ $1 = "version" -o $1 = "v" -o $1 = "-v" ]; then
 
 elif [ $1 = "install" -o $1 = "i" ]; then
   pip install -r requirements.txt
-  docker run -it -v $(pwd)/website:/app -w /app node:12-alpine yarn add "$@"
+  docker run -it -v $(pwd)/website:/app -w /app node:current-alpine yarn add "$@"
 
 elif [ $1 = "build" ]; then
   docker run -it -v $(pwd)/website:/app -w /app -p 5555:5555 node:current-alpine yarn parcel watch --port 5555 src/index.html
