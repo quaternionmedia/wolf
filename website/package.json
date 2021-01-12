@@ -10,8 +10,11 @@
   "author": "harpo",
   "license": "MIT",
   "devDependencies": {
+    "@babel/cli": "^7.12.10",
+    "@babel/preset-env": "^7.12.11",
     "parcel": "^2.0.0-nightly.439"
   },
+  "browserslist": ["defaults"],
   "dependencies": {
     "cytoscape": "^3.16.3",
     "cytoscape-cose-bilkent": "^4.1.0",
