@@ -1,6 +1,5 @@
 import m from 'mithril'
-import { Menu } from './Menu'
-import { Layout } from './Layout'
+import { Layout } from './Menu'
 import { Mixer } from './Mixer'
 import { PatchbayPage } from './Patchbay'
 import { Lyrics } from './Lyrics'

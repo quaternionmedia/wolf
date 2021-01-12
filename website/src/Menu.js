@@ -31,3 +31,14 @@ export function Menu() {
     }
   }
 }
+
+export function Layout() {
+  return {
+    view: vnode => {
+      return m('main.layout', {}, [
+        m('nav.menu', {}, m(Menu)),
+        m('section', vnode.children)
+      ])
+    }
+  }
+}
