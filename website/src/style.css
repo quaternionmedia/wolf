@@ -109,25 +109,27 @@ select {
 
 body {
   background-color: #222;
+  margin: 0;
   color: #ddd;
   font-size: 1.5em;
+  font: normal 1.5em Verdana;
 }
 
-a:visited {
+a {
   color: white;
+  text-decoration: none;
+
 }
-/* styles.css */
-body, .input, .button {
-    font: normal 1.5em Verdana;
-    margin: 0;
-}
+
 
 .layout {
-    margin: 10px auto;
-    max-width: 1000px;
+  margin: 1em auto;
 }
 
 .menu {
-    margin: 0 0 .5em;
-    background: #8883;
-}
+  display: flex;
+  justify-content: space-between;
+  margin: 1em 1em .5em;
+  padding: .5em 1em;
+  background: #8883;
+} 

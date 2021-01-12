@@ -26,7 +26,7 @@ export function Links() {
 export function Menu() {
   return {
     view: vnode => {
-      return [m('a', {href: '/'}, 'wolf!'),
+      return [m(Link, {href: '/'}, 'wolf!'),
       m(Links),]
     }
   }
