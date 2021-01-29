@@ -2,7 +2,7 @@ import rtmidi
 from time import time, sleep
 from collections import deque
 from rtmidi.midiutil import open_midioutput, open_midiinput
-from rtmidi.midiconstants import NOTE_ON, NOTE_OFF, POLY_AFTERTOUCH, CONTROL_CHANGE
+from rtmidi.midiconstants import NOTE_ON, NOTE_OFF, POLY_AFTERTOUCH, CONTROL_CHANGE, PROGRAM_CHANGE
 from operator import xor
 
 NUMBER_LOOPS = 32
@@ -17,6 +17,7 @@ PULSE = 55 # dim pink
 TAP = 53 # bright pink
 GREEN = [ 123, 23, 64, 22, 76, 87, 21, 122 ]
 DRUM_BANKS = [69, 79, 35, 15, 59]
+DRUM_PATCHES = [0, 8, 25, 32]
 FX = [4, 11, 12, 16, 20, 28, 36, 44, 52, 55, 59, 69, ]
 launchpad_notes = []
 n = 81
@@ -29,7 +30,8 @@ print(launchpad_notes)
 launchpad_scenes = [89, 79, 69, 59, 49, 39, 29, 19]
 launchpad_functions = [91, 92, 93, 94 , 95, 96, 97, 98]
 launchpad_drums = [11, 12, 13, 14, 21, 22, 23, 24, 31, 32, 33, 34, 41, 42, 43, 44]
-launchpad_fx = [25, 26, 27, 28, 35, 36, 37, 38, 45, 46, 47, 48]
+launchpad_drum_patches = [25, 26, 27, 28]
+launchpad_fx = [35, 36, 37, 38, 45, 46, 47, 48]
 launchpad_mutes = [15, 16, 17, 18]
 
 class HoloController:
@@ -165,13 +167,17 @@ class HoloController:
                         # if we deleted the loop clear the color
                         launchOut.send_message([NOTE_ON, message[1], 0])        
             elif message[1] in launchpad_drums:
-                fluidOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]) + self.drum_bank*16, message[2]])
+                bitwigOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]) + self.drum_bank*16, message[2]])
                 launchOut.send_message([*message[:2], message[2] if message[2] else DRUM_BANKS[self.drum_bank]])
             elif message[1] in launchpad_fx and message[2]:
                 f = launchpad_fx.index(message[1])
                 self.fx[f] = not self.fx[f]
                 bitwigOut.send_message([CONTROL_CHANGE, message[1], 127 if self.fx[f] else 0])
                 launchOut.send_message([*message[:2], FX[f] if self.fx[f] else EMPTY])
+            elif message[1] in launchpad_drum_patches:
+                i = launchpad_drum_patches.index(message[1])
+                fluidOut.send_message([PROGRAM_CHANGE | 9, DRUM_PATCHES[i]])
+                launchOut.send_message(message)
             elif message[1] in launchpad_mutes and message[2]:
                     # mute / unmute inputs 1-4
                     n = 15 - message[1]
@@ -292,8 +298,8 @@ class HoloController:
                             self.tap = not self.tap
                         # this also clears the ERASE color from the Session button if shift mode is released first
                         launchOut.send_message([CONTROL_CHANGE, 95, TAP if self.tap else PULSE])
-        elif message[0] & 0xF0 == CONTROL_CHANGE and data == 1:
-            print('pano midi', message)
+        elif (message[0] & 0xF0 == CONTROL_CHANGE) and data == 1:
+            print('pano midi', message, data)
             if message[1] == 113 and self.overdub != bool(message[2]) :
                 # record button: overdub mode
                 self.toggleOverdub()
