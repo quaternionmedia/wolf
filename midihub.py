@@ -167,7 +167,7 @@ class HoloController:
                         # if we deleted the loop clear the color
                         launchOut.send_message([NOTE_ON, message[1], 0])        
             elif message[1] in launchpad_drums:
-                bitwigOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]) + self.drum_bank*16, message[2]])
+                fluidOut.send_message([NOTE_ON | 0x9, 36 + launchpad_drums.index(message[1]) + self.drum_bank*16, message[2]])
                 launchOut.send_message([*message[:2], message[2] if message[2] else DRUM_BANKS[self.drum_bank]])
             elif message[1] in launchpad_fx and message[2]:
                 f = launchpad_fx.index(message[1])
