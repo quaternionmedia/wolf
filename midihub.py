@@ -174,10 +174,13 @@ class HoloController:
                 self.fx[f] = not self.fx[f]
                 bitwigOut.send_message([CONTROL_CHANGE, message[1], 127 if self.fx[f] else 0])
                 launchOut.send_message([*message[:2], FX[f] if self.fx[f] else EMPTY])
-            elif message[1] in launchpad_drum_patches:
+            elif message[1] in launchpad_drum_patches and message[2]:
                 i = launchpad_drum_patches.index(message[1])
                 fluidOut.send_message([PROGRAM_CHANGE | 9, DRUM_PATCHES[i]])
                 launchOut.send_message(message)
+                # clear other patch buttons
+                for b in set(launchpad_drum_patches) - {message[1]}:
+                    launchOut.send_message([NOTE_ON, b, 0])
             elif message[1] in launchpad_mutes and message[2]:
                     # mute / unmute inputs 1-4
                     n = 15 - message[1]
