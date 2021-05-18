@@ -6,10 +6,12 @@ from config import HOST, PORT, PASSWORD
 
 class ObsWs:
     def __init__(self):
-        parser = ArgumentParser(description='obs websocket cli')
+        parser = ArgumentParser(
+            description='obs websocket cli',
+        )
         parser.add_argument('command',
             type=str,
-            help='the function to call in obs-websocket'
+            help='the function to call in obs-websocket',
         )
         args = parser.parse_args(argv[1:2])
         if not hasattr(self, args.command):
@@ -27,21 +29,29 @@ class ObsWs:
         parser.add_argument('scene',
             type=str,
             help='name of scene to select'
-            )
+        )
         args = parser.parse_args(argv[2:])
         try:
             self.ws.call(requests.SetCurrentScene(args.scene))
         finally:
             self.ws.disconnect()
     def transition(self):
-        parser = ArgumentParser(description='change transiion')
-        parser.add_argument('transiion',
+        parser = ArgumentParser(description='change transition')
+        parser.add_argument('transition',
             type=str,
             help='name of transition to select'
-            )
+        )
         args = parser.parse_args(argv[2:])
         try:
-            self.ws.call(requests.SetCurrentTransition(args.transiion))
+            self.ws.call(requests.SetCurrentTransition(args.transition))
+        finally:
+            self.ws.disconnect()
+            type=str,
+            help='name of transition to select'
+        )
+        args = parser.parse_args(argv[2:])
+        try:
+            self.ws.call(requests.SetCurrentTransition(args.transition))
         finally:
             self.ws.disconnect()
 
