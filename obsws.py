@@ -3,11 +3,20 @@ from sys import argv
 from argparse import ArgumentParser
 from config import HOST, PORT, PASSWORD
 
+usage = '''obsws <command> [<args>]
+
+The most commonly used commands are:
+   scene [scene]            set the current scene
+   transition [transition]  set the current transition
+'''
+
 
 class ObsWs:
     def __init__(self):
         parser = ArgumentParser(
             description='obs websocket cli',
+            usage=usage,
+
         )
         parser.add_argument('command',
             type=str,
