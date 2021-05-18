@@ -1,10 +1,8 @@
 from obswebsocket import obsws, requests
 from sys import argv
 from argparse import ArgumentParser
-from config import OBS_PASSWORD
+from config import HOST, PORT, PASSWORD
 
-host = 'localhost'
-port = 4444
 
 class ObsWs:
     def __init__(self):

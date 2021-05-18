@@ -1,1 +1,3 @@
-OBS_PASSWORD=''
+HOST = 'localhost'
+PORT = 4444
+PASSWORD=''
