@@ -44,6 +44,7 @@ class ObsWs:
             self.ws.call(requests.SetCurrentScene(args.scene))
         finally:
             self.ws.disconnect()
+    
     def transition(self):
         parser = ArgumentParser(description='change transition')
         parser.add_argument('transition',
@@ -55,12 +56,16 @@ class ObsWs:
             self.ws.call(requests.SetCurrentTransition(args.transition))
         finally:
             self.ws.disconnect()
+    
+    def preview(self):
+        parser = ArgumentParser(description='set preview scene')
+        parser.add_argument('scene',
             type=str,
-            help='name of transition to select'
+            help='name of preview scene to select'
         )
         args = parser.parse_args(argv[2:])
         try:
-            self.ws.call(requests.SetCurrentTransition(args.transition))
+            self.ws.call(requests.SetPreviewScene(args.scene))
         finally:
             self.ws.disconnect()
 
