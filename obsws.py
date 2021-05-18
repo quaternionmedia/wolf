@@ -33,6 +33,18 @@ class ObsWs:
             self.ws.call(requests.SetCurrentScene(args.scene))
         finally:
             self.ws.disconnect()
+    def transition(self):
+        parser = ArgumentParser(description='change transiion')
+        parser.add_argument('transiion',
+            type=str,
+            help='name of transition to select'
+            )
+        args = parser.parse_args(argv[2:])
+        try:
+            self.ws.call(requests.SetCurrentTransition(args.transiion))
+        finally:
+            self.ws.disconnect()
+
 
 if __name__ == '__main__':
     ObsWs()
