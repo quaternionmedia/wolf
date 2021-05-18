@@ -16,7 +16,12 @@ class ObsWs:
             print('Unrecognized command')
             parser.print_help()
             exit(1)
+        
+        self.ws = obsws(HOST, PORT, PASSWORD)
+        self.ws.connect()
+
         getattr(self, args.command)()
+    
     def scene(self):
         parser = ArgumentParser(description='change scene')
         parser.add_argument('scene',
@@ -24,12 +29,10 @@ class ObsWs:
             help='name of scene to select'
             )
         args = parser.parse_args(argv[2:])
-        ws = obsws(host, port, OBS_PASSWORD)
-        ws.connect()
         try:
-            ws.call(requests.SetCurrentScene(args.scene))
+            self.ws.call(requests.SetCurrentScene(args.scene))
         finally:
-            ws.disconnect()
+            self.ws.disconnect()
 
 if __name__ == '__main__':
     ObsWs()
