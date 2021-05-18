@@ -7,7 +7,9 @@ usage = '''obsws <command> [<args>]
 
 The most commonly used commands are:
    scene [scene]            set the current scene
+   preview [scene]          set the current preview
    transition [transition]  set the current transition
+   program                  transition to program
 '''
 
 
