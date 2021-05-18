@@ -68,6 +68,14 @@ class ObsWs:
             self.ws.call(requests.SetPreviewScene(args.scene))
         finally:
             self.ws.disconnect()
+    
+    def program(self):
+        parser = ArgumentParser(description='transition preview to program')
+        args = parser.parse_args(argv[2:])
+        try:
+            self.ws.call(requests.TransitionToProgram())
+        finally:
+            self.ws.disconnect()
 
 
 if __name__ == '__main__':
